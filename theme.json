@@ -1,0 +1,152 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "customTemplates": [
+    {
+      "name": "page",
+      "postTypes": [
+        "page"
+      ],
+      "title": "Page"
+    }
+  ],
+  "settings": {
+    "appearanceTools": true,
+    "color": {
+      "palette": [
+        {
+          "slug": "text",
+          "color": "#222222",
+          "name": "Text"
+        },
+        {
+          "slug": "desktop",
+          "color": "#008080",
+          "name": "Desktop"
+        },
+        {
+          "slug": "surface",
+          "color": "#c0c0c0",
+          "name": "Surface"
+        },
+        {
+          "slug": "buttonHighLight",
+          "color": "#ffffff",
+          "name": "Button High Light"
+        },
+        {
+          "slug": "buttonFace",
+          "color": "#dfdfdf",
+          "name": "Button Face"
+        },
+        {
+          "slug": "buttonShadow",
+          "color": "#808080",
+          "name": "Button Shadow"
+        },
+        {
+          "slug": "windowFrame",
+          "color": "#0a0a0a",
+          "name": "Window Frame"
+        },
+        {
+          "slug": "dialogBlue",
+          "color": "#000080",
+          "name": "Dialog Blue"
+        },
+        {
+          "slug": "dialogBlueLight",
+          "color": "#1084d0",
+          "name": "Dialog Blue Light"
+        },
+        {
+          "slug": "dialogGray",
+          "color": "#808080",
+          "name": "Dialog Gray"
+        },
+        {
+          "slug": "dialogGrayLight",
+          "color": "#b5b5b5",
+          "name": "Dialog Gray Light"
+        },
+        {
+          "slug": "linkBlue",
+          "color": "#0000ff",
+          "name": "Link Blue"
+        }
+      ],
+      "gradients": [
+        {
+          "slug": "title-bar",
+          "gradient": "linear-gradient(90deg, var(--wp--preset--color--dialog-blue), var(--wp--preset--color--dialog-blue-light))",
+          "name": "Title Bar"
+        },
+        {
+          "slug": "title-bar-inactive",
+          "gradient": "linear-gradient(90deg, var(--wp--preset--color--dialog-gray), var(--wp--preset--color--dialog-gray-light))",
+          "name": "Title Bar Inactive"
+        },
+        {
+          "slug": "progress-indicator",
+          "gradient": "linear-gradient(90deg, var(--wp--preset--color--dialog-blue), transparent)",
+          "name": "Progress Indicator"
+        }
+      ]
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "name": "Pixelated MS Sans Serif",
+          "slug": "pixelated-ms-sans-serif",
+          "fontFamily": "sans-serif",
+          "fontFace": [
+            {
+              "fontFamily": "sans serif",
+							"fontWeight": "normal",
+							"fontStyle": "normal",
+							"fontStretch": "normal",
+							"src": [ "file:./assets/fonts/ms_sans_serif.woff2" ]
+            },
+            {
+              "fontFamily": "sans serif",
+							"fontWeight": "bold",
+							"fontStyle": "normal",
+							"fontStretch": "normal",
+							"src": [ "file:./assets/fonts/ms_sans_serif_bold.woff2" ]
+            }
+          ]
+        }
+      ],
+      "fluid": true,
+      "letterSpacing": true,
+      "lineHeight": true,
+      "textColumns": true,
+      "writingMode": true
+    },
+    "useRootPaddingAwareAlignments": true
+  },
+  "styles": {
+    "color": {
+      "background": "var(--wp--preset--color--desktop)",
+      "text": "var(--wp--preset--color--text)"
+    }
+  },
+  "templateParts": [
+    {
+      "title": "Start Menu",
+      "name": "startMenu",
+      "area": "header"
+    },
+    {
+      "title": "Clock and System Info",
+      "name": "system",
+      "area": "footer"
+    },
+    {
+      "title": "Open Programs",
+      "name": "openPrograms",
+      "area": "uncategorized"
+    }
+  ]
+}
+
