@@ -1,0 +1,1 @@
+<script type="text/javascript">const templateUrl = "<?php echo get_template_directory_uri(); ?>"</script>

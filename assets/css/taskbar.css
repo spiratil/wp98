@@ -1,0 +1,32 @@
+/**
+ * Adapted from 98.css
+ * Copyright (c) 2020 Jordan Scales <thatjdanisso.cool>
+ * https://github.com/jdan/98.css/blob/main/LICENSE
+
+  Version: 0.1.20
+ */
+
+#wp98-taskbar {
+  background: var(--wp98--color--surface);
+  position: fixed;
+  padding: 2px;
+  box-shadow: inset 1px 0 var(--wp98--color--button-face);
+  border-top: 1px solid var(--wp98--color--button-face);
+  border-bottom: 1px solid var(--wp98--color--dialog-gray);
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#wp98-taskbar > * {
+  display: inline-block;
+  user-select: none;
+}
+
+
+
+#wp98-taskbar .copyright {
+  float: right;
+  box-shadow: var(--wp98--border--sunken-outer);
+  padding: 5px 4px 4px 10px;
+}

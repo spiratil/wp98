@@ -1,0 +1,77 @@
+:root {
+  /* Color */
+  --wp98--color--text: #222222;
+  --wp98--color--desktop: #008080;
+  --wp98--color--surface: #c0c0c0;
+  --wp98--color--button-highlight: #ffffff;
+  --wp98--color--button-face: #dfdfdf;
+  --wp98--color--button-shadow: #808080;
+  --wp98--color--window-frame: #0a0a0a;
+  --wp98--color--dialog-blue: #000080;
+  --wp98--color--dialog-blue-light: #1084d0;
+  --wp98--color--dialog-gray: #808080;
+  --wp98--color--dialog-gray-light: #b5b5b5;
+  --wp98--color--link-blue: #0000ff;
+
+  /* Spacing */
+  --wp98--spacing--element-spacing: 8px;
+  --wp98--spacing--grouped-button-spacing: 4px;
+  --wp98--spacing--grouped-element-spacing: 6px;
+  --wp98--spacing--radio-width: 12px;
+  --wp98--checkbox-width: 13px;
+  --wp98--radio-label-spacing: 6px;
+  --wp98--range-track-height: 4px;
+  --wp98--range-spacing: 10px;
+
+  /* Some detailed computations for radio buttons and checkboxes */
+  --wp98--radio--range-spacing: var(--wp98--spacing--radio-width) + var(--wp98--radio-label-spacing);
+  --wp98--radio--total-width: calc(var(--wp98--radio--range-spacing));
+  --wp98--radio--left: calc(-1 * var(--wp98--radio--range-spacing));
+  --wp98--radio--dot-width: 4px;
+  --wp98--radio--dot-top: calc(var(--wp98--spacing--radio-width) / 2 - var(--wp98--radio--dot-width) / 2);
+  --wp98--radio--dot-left: calc(
+    -1 * (var(--wp98--radio--range-spacing)) + var(--wp98--spacing--radio-width) / 2 - var(
+        --wp98--radio--dot-width
+      ) / 2
+  );
+
+  --wp98--checkbox--total-width-precalc: var(--wp98--checkbox-width) +
+    var(--wp98--radio-label-spacing);
+  --wp98--checkbox--total-width: calc(var(--wp98--checkbox--total-width-precalc));
+  --wp98--checkbox--left: calc(-1 * var(--wp98--checkbox--total-width-precalc));
+  --wp98--checkmark--width: 7px;
+  --wp98--checkmark--left: 3px;
+
+  /* Borders */
+  --wp98--border--width: 1px;
+  --wp98--border--raised-outer: inset -1px -1px var(--wp98--color--window-frame),
+    inset 1px 1px var(--wp98--color--button-highlight);
+  --wp98--border--raised-inner: inset -2px -2px var(--wp98--color--button-shadow),
+    inset 2px 2px var(--wp98--color--button-face);
+  --wp98--border--sunken-outer: inset -1px -1px var(--wp98--color--button-highlight),
+    inset 1px 1px var(--wp98--color--window-frame);
+  --wp98--border--sunken-inner: inset -2px -2px var(--wp98--color--button-face),
+    inset 2px 2px var(--wp98--color--button-shadow);
+  --wp98--border--default-button-border-raised-outer: inset -2px -2px var(--wp98--color--window-frame), inset 1px 1px var(--wp98--color--window-frame);
+  --wp98--border--default-button-border-raised-inner: inset 2px 2px var(--wp98--color--button-highlight), inset -3px -3px var(--wp98--color--button-shadow), inset 3px 3px var(--wp98--color--button-face);
+  --wp98--border--default-button-border-sunken-outer: inset 2px 2px var(--wp98--color--window-frame), inset -1px -1px var(--wp98--color--window-frame);
+  --wp98--border--default-button-border-sunken-inner: inset -2px -2px var(--wp98--color--button-highlight), inset 3px 3px var(--wp98--color--button-shadow), inset -3px -3px var(--wp98--color--button-face);
+
+
+  /* Window borders flip button-face and button-highlight */
+  --wp98--border--window-outer: inset -1px -1px var(--wp98--color--window-frame),
+    inset 1px 1px var(--wp98--color--button-face);
+  --wp98--border--window-inner: inset -2px -2px var(--wp98--color--button-shadow),
+    inset 2px 2px var(--wp98--color--button-highlight);
+
+  /* Field borders (checkbox, input, etc) flip window-frame and button-shadow */
+  --wp98--border-field: inset -1px -1px var(--wp98--color--button-highlight),
+    inset 1px 1px var(--wp98--color--button-shadow), inset -2px -2px var(--wp98--color--button-face),
+    inset 2px 2px var(--wp98--color--window-frame);
+
+  /* Tabs */
+  --wp98--border-tab: inset -1px 0 var(--wp98--color--window-frame),
+    inset 1px 1px var(--wp98--color--button-face),
+    inset -2px 0 var(--wp98--color--button-shadow),
+    inset 2px 2px var(--wp98--color--button-highlight)
+}

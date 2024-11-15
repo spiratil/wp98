@@ -1,0 +1,77 @@
+#wp98-start-button {
+  min-width: 0;
+  padding: 2px 6px 0 6px;
+  margin: 0 3px;
+  user-select: none;
+}
+
+#wp98-start-button:focus {
+  box-shadow: var(--wp98--border--sunken-outer), var(--wp98--border--sunken-inner);
+  text-shadow: 1px 1px var(--wp98--color--text-color);
+}
+
+#wp98-start-menu {
+  display: none;
+  flex-flow: nowrap;
+  position: absolute;
+}
+
+#wp98-start-menu .title-bar {
+  background: var(--wp98--color--dialog-blue);
+  width: fit-content;
+  align-items: end;
+}
+
+#wp98-start-menu .title-bar-text {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  writing-mode: vertical-rl;
+  transform: scale(-1);
+}
+
+#wp98-start-menu .title-bar-text h1 {
+  margin: 0;
+  font-size: large;
+}
+
+
+#wp98-start-menu .title-bar-text img {
+  transform: rotate(90deg);
+}
+
+#wp98-start-menu nav {
+  flex-grow: 1;
+  margin: 0;
+}
+
+#wp98-start-menu nav ul {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+}
+
+#wp98-start-menu nav ul li {
+  padding: 2px 3px 3px 7px;
+}
+
+#wp98-start-menu nav ul img {
+  max-width: 40px;
+}
+
+#wp98-start-menu nav ul a {
+  text-decoration: none;
+  color: inherit;
+  font-size: 12px;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+#wp98-start-menu .menu-hover {
+  background: var(--wp98--color--dialog-blue);
+  color: white;
+}
