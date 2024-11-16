@@ -12,8 +12,8 @@ $options_table = $wpdb->prefix . 'wp98_options';
 $menu_table = $wpdb->prefix . 'wp98_menus';
 
 //add_action( 'switch_theme', 'wp98_remove_theme_options_menu' );
+add_action( 'admin_enqueue_scripts', 'wp98_setup_admin' );
 add_action( 'wp_enqueue_scripts', 'wp98_setup' );
-add_action( 'after_setup_theme', 'wp98_register_menu' );
 add_action( 'admin_menu', 'wp98_add_custom_admin_menu' );
 add_action( 'after_switch_theme', 'wp98_create_theme_database_table' );
 
@@ -87,16 +87,12 @@ function wp98_enqueue_scripts() {
   }
 }
 
-function wp98_register_menu() {
-  register_nav_menu( 'wp98-menu', __( 'Primary Menu', 'theme-slug' ) );
-}
-
 function wp98_add_custom_admin_menu() {
 	add_theme_page( 'WP 98 Options', 'WP 98 Options', 'edit_theme_options', 'wp98_theme_options', 'wp98_option_page' );
   /*
   remove_submenu_page( 'themes.php', 'nav-menus.php' );
-  $customize_url = add_query_arg( 'return', urlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' );
-  remove_submenu_page( 'themes.php', $customize_url );
+  $customize_page_url = add_query_arg( 'return', urlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' );
+  remove_submenu_page( 'themes.php', $customize_page_url );
   */
 }
 
@@ -105,4 +101,16 @@ function wp98_option_page() {
   if ( !current_user_can( 'manage_options' ) ) wp_die( __('You do not have sufficient permissions to access this page.') );
 
 	get_template_part( './templates/wp98-options-page' );
+}
+
+function wp98_setup_admin( $hook ) {
+  if ( $hook === 'appearance_page_wp98_theme_options' ) {
+    wp_enqueue_style( 'wp98-options-css', get_theme_file_uri() . '/assets/css/options.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
+    wp_enqueue_script( 'wp98-options-js', get_parent_theme_file_uri( '/assets/js/options.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'defer', true ) );
+    // mediamanager script and styling
+    wp_enqueue_style( 'dropzone-css', get_theme_file_uri() . '/assets/mediamanager/dropzone.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
+    wp_enqueue_script( 'dropzone-js', get_parent_theme_file_uri( '/assets/mediamanager/dropzone.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'defer', true ) );
+    wp_enqueue_style( 'mediamanager-css', get_theme_file_uri() . '/assets/mediamanager/mediamanager.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
+    wp_enqueue_script( 'mediamanager-js', get_parent_theme_file_uri( '/assets/mediamanager/mediamanager.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'defer', true ) );
+  }
 }

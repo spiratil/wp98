@@ -4,7 +4,7 @@
     <meta charset="<?php bloginfo( 'charset' ); ?>">
     <title><?php wp_title( '|', true, 'right' ); ?></title>
     <!-- Loads a global JS constant that allows other scripts access to server file paths -->
-    <script type="text/javascript">const templateUrl = "<?php echo get_bloginfo("template_url"); ?>"</script>
+    <script type="text/javascript">const templateUrl = "<?php echo esc_html( get_bloginfo( "template_url" ) ); ?>" </script>
     <link rel="stylesheet" href="<?php echo esc_url( get_stylesheet_uri() ); ?>" type="text/css" />
     <?php wp_head(); ?>
   </head>

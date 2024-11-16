@@ -8,44 +8,61 @@
   // Database settings
   $start_menu = $wpdb->get_results( "SELECT * FROM $options_table WHERE opt_cat='start-menu'" );
   $nav_menu = $wpdb->get_results( "SELECT * FROM $menu_table" );
-  error_log(print_r((array)$start_menu, true));
 
+  // Check if the form on the page has been submitted
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     foreach ( $categories as $cat ) {
-      $var_name = str_replace( '-', '_', $cat );
-      foreach ( ${$var_name} as $option ) {
+      $data_ref = str_replace( '-', '_', $cat );
+      foreach ( ${$data_ref} as $option ) {
         $key = $cat . '-' . $option->opt_name;
-        $id = wp98_get_database_entry_id((array)${$var_name}, $option->opt_name );
+        $id = wp98_get_database_entry_id((array)${$data_ref}, $option->opt_name );
+
+        // Currently, only checkbox options are updated
         if ( empty( $_POST[$key] ) ) $wpdb->update( $options_table, array( 'opt_val' => 0 ), array( 'opt_id' => $id ) );
         else $wpdb->update( $options_table, array( 'opt_val' => 1 ), array( 'opt_id' => $id ) );
       }
     }
 
+    // Fetch the database settings again
+    //*** Change this later to update this data as the database is updated for each variable without having to download everything again */
     $start_menu = $wpdb->get_results( "SELECT * FROM $options_table WHERE opt_cat='start-menu'" );
     $nav_menu = $wpdb->get_results( "SELECT * FROM $menu_table" );
   }
 ?>
 
+<!-- Create the form -->
+ 
+<script type="text/javascript">const templateUrl = "<?php echo esc_html( get_template_directory_uri() ); ?>"; </script>
+<!-- Create the form -->
+
 <div class="wrap">
-  <h1>WP 98 Options</h1>
-  <form name="wp98-options" method="post" action="<?php echo esc_html(site_url() . $_SERVER['PHP_SELF'] . '?page=wp98_theme_options' ); ?>">
+  <h1><?php echo esc_html (get_admin_page_title() ); ?></h1>
+  <form name="wp98-options" method="post" action="<?php echo esc_html( site_url() . $_SERVER['PHP_SELF'] . '?page=wp98_theme_options' ); ?>">
     <table class="form-table" role="presentation">
       <tbody>
         <?php 
           // Insert the options section heading and fill in the options
-          foreach ($categories as $cat) {
+          foreach ($categories as $cat) :
             $heading = ucwords( str_replace( '-', ' ', $cat ) );
-            $var_name = str_replace( '-', '_', $cat );
-            $data = ${ $var_name };
+            $data_ref = str_replace( '-', '_', $cat );
+            $data = ${ $data_ref };
             $rows = count((array)$data) + 1
-                    + ($var_name === 'start_menu' ? 1 : 0); // Add row count for nav menu entries
+                    + ($data_ref === 'start_menu' ? 1 : 0); // Add row count for nav menu entries
+            ?>
 
-            echo '<tr><td colspan="2"><h2>' . $heading . '</h2></td><td rowspan="' . $rows . '">Preview box</td></tr>';
+            <tr>
+              <td colspan="2">
+                <h2><?php echo esc_html( $heading ); ?></h2>
+              </td>
+              <td rowspan="<?php echo esc_html( $rows ); ?>">Preview box</td>
+            </tr>
+
+            <?php
             // Run the function that creates the html for each required setting option
-            ('wp98_build_' . $var_name . '_options_html')($var_name, $data);
-          }
+            ('wp98_build_' . $data_ref . '_options_html')($data_ref, $data);
+          endforeach;
         ?>
-        <tr><td><input type="submit" class="button-primary" value="Save Changes"></td></tr>
+        <tr><td><?php submit_button( 'Save Options' ); ?></td></tr>
       </tbody>
     </table>
   </form>
@@ -58,9 +75,10 @@
     $index = array_search( $key,$keys );
     return $index;
   }
+
+  // Iterate through all required options saved on the database and prepare the required HTML
   function wp98_build_start_menu_options_html( $cat, $data ) {
     global $wpdb;
-    //error_log(print_r($data, true));
 
     foreach ( $data as $option ) {
       if ( strlen(intval( $option->opt_val) ) === 1 && intval( $option->opt_val ) <= 1 ) {
@@ -78,35 +96,78 @@
   }
 
   function wp98_build_system_tray_options_html() {
-    //wp98_build_checkbox_html( 'Show System Tray', 'show-system-tray', '', 'wp98_system_tray_show' );
+    
   }
 
   function wp98_build_checkbox_html( $name, $category, $label, $description, $value ) {
-    echo "<tr>
-      <th scope=\"row\">$label</th>
-      <td> <input id=\"$name\" type=\"checkbox\" name=\"$category-$name\" " . ($value === 1 ? "checked>" : ">") . "<label for=\"$name\">$description</label></td>
-    </tr>";
+    ?>
+    <tr>
+      <th scope="row"><?php echo $label; ?></th>
+      <td>
+        <input id="<?php echo $name; ?>" type="checkbox" name="<?php echo $category . '-' . $name ?>" <?php echo ($value === 1 ? 'checked' : ''); ?>>
+        <label for="<?php echo $name; ?>"><?php echo $description; ?></label>
+      </td>
+    </tr>
+    <?php
   }
 
   function wp98_build_nav_menu_html() {
     global $nav_menu;
-    $entry_count = count( (array)$nav_menu );
+    $entry_count = count( (array)$nav_menu ) + 1;
+    error_log( print_r('nav id count: ' . $entry_count, true) );
     //error_log(print_r($nav_menu, true));
-    echo '<tr>
-      <th scope="row"> <label for="menu-items">Menu Items</label> </th>
-      <td><table id="wp98_nav_menu_options" name="menu-items">
-      <tr> <th class="start-menu-icon-col">Icon</th> <th class="start-menu-label-col">Label</th> <th class="start-menu-link-col">Link</th> </tr>';
-    
-      // Add menu items previous recorded
+    ?>
+    <tr>
+      <th scope="row">
+        <label for="menu-items">Menu Items</label>
+      </th>
+      <td>
+        <table id="wp98_nav_menu_options" name="menu-items">
+        <tr>
+          <th class="start-menu-icon-col">Icon</th>
+          <th class="start-menu-label-col">Label</th>
+          <th class="start-menu-link-col">Link</th>
+        </tr>
+    <?php
+    // Add menu items previous recorded
     foreach ( $nav_menu as $entry ) {
-      echo '<tr><td class="start-menu-icon-col"><img src="' . $entry->img . '" name="start-menu-nav-img-' . $entry->id . '"></td>
-        <td class="start-menu-label-col"><input type="text" value="' . $entry->lbl . '" name="start-menu-nav-label-' . $entry->id . '"></td>
-        <td class="start-menu-link-col"><input type="text" value="' . $entry->link . '" name="start-menu-nav-link-' . $entry->id . '"></td></tr>';
+      ?>
+      <tr>
+        <td class="start-menu-icon-col">
+          <img src="<?php echo esc_html($entry->img); ?>" name="start-menu-nav-img-<?php echo esc_html($entry->id); ?>">
+          <button type="button" class="mediamanager-btn btn btn-primary">Change</button>
+        </td>
+        <td class="start-menu-label-col">
+          <input type="text" value="<?php echo esc_html($entry->lbl); ?>" name="start-menu-nav-label-<?php echo esc_html($entry->id); ?>">
+        </td>
+        <td class="start-menu-link-col">
+          <input type="text" value="<?php echo esc_html($entry->link); ?>" name="start-menu-nav-link-<?php echo esc_html($entry->id); ?>">
+        </td>
+      </tr>
+      <?php
     }
-    echo '<tr><td class="start-menu-icon-col"><img src="" name="start-menu-nav-img-' . $entry_count . '"><button>Choose</button></td>
-        <td class="start-menu-label-col"><input type="text" name="start-menu-nav-label-' . $entry_count . '"></td>
-        <td class="start-menu-link-col"><input type="text" name="start-menu-nav-link-' . $entry_count . '"></td></tr>';
-    echo "<tr><td colspan=\"3\"><p class=\"description\">The Start Menu will be created dynamically based on your choices here.</p></td></tr></table></td>
-      
-    </tr>";
+
+    // Add a row with options to add new items
+    ?>
+            <tr>
+              <td class="start-menu-icon-col">
+                <img src="" name="start-menu-nav-img-<?php echo esc_html($entry_count); ?>">
+                <button type="button" class="mediamanager-btn btn btn-primary">Choose Icon</button>
+              </td>
+            <td class="start-menu-label-col">
+              <input type="text" name="start-menu-nav-label-<?php echo esc_html($entry_count); ?>" placeholder="Blog">
+            </td>
+            <td class="start-menu-link-col">
+              <input type="text" name="start-menu-nav-link-<?php echo esc_html($entry_count); ?>" placeholder="www.sitename.com/blog/">
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3">
+              <p class="description">The Start Menu will be created dynamically based on your choices here.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <?php
   }
