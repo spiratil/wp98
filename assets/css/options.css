@@ -1,0 +1,46 @@
+#wp98_nav_menu_options td {
+  padding: 7px 5px;
+}
+
+#wp98_nav_menu_options .start-menu-icon-col {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 0;
+}
+
+#wp98_nav_menu_options .start-menu-btn-flex-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+#wp98_nav_menu_options .start-menu-btn-flex-container button {
+  min-height: unset;
+  line-height: unset;
+}
+
+#wp98_nav_menu_options .add-button {
+  line-height: unset;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+
+#wp98_nav_menu_options .start-menu-no-icon:not(.start-menu-no-icon-hide) {
+  display: inline-flex;
+  align-items: center;
+  text-align: center;
+  width: 44px;
+  height: 44px;
+  border: solid 1px;
+  justify-content: center;
+}
+
+#wp98_nav_menu_options img:not(img[src=""]) {
+  width: 48px;
+  height: 48px;
+}

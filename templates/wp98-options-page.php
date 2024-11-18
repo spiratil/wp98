@@ -11,6 +11,7 @@
 
   // Check if the form on the page has been submitted
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Update items from the options table on the database
     foreach ( $categories as $cat ) {
       $data_ref = str_replace( '-', '_', $cat );
       foreach ( ${$data_ref} as $option ) {
@@ -22,6 +23,10 @@
         else $wpdb->update( $options_table, array( 'opt_val' => 1 ), array( 'opt_id' => $id ) );
       }
     }
+
+    // Update menu items on the database
+    error_log( print_r( $_POST, true ) );
+
 
     // Fetch the database settings again
     //*** Change this later to update this data as the database is updated for each variable without having to download everything again */
@@ -123,25 +128,34 @@
       </th>
       <td>
         <table id="wp98_nav_menu_options" name="menu-items">
+        <!--
         <tr>
           <th class="start-menu-icon-col">Icon</th>
           <th class="start-menu-label-col">Label</th>
           <th class="start-menu-link-col">Link</th>
         </tr>
+        -->
     <?php
     // Add menu items previous recorded
     foreach ( $nav_menu as $entry ) {
       ?>
-      <tr>
+      <tr class="start-menu-row" data-row="<?php echo esc_html($entry->id); ?>">
+        <td class="start-menu-drag-icon">
+          <div>≡</div>
+        </td>
         <td class="start-menu-icon-col">
-          <img src="<?php echo esc_html($entry->img); ?>" name="start-menu-nav-img-<?php echo esc_html($entry->id); ?>">
-          <button type="button" class="mediamanager-btn btn btn-primary">Change</button>
+            <div class="start-menu-no-icon" style="display: none;">No<br>Icon</div>
+            <img src="<?php echo esc_html($entry->img); ?>" name="start-menu-img-<?php echo esc_html($entry->id); ?>">
+            <div class="start-menu-btn-flex-container">
+              <button type="button" class="mediamanager-btn button button-secondary">Change</button>
+              <button type="button" class="icon-remove-btn button button-secondary">Remove</button>
+            </div>
         </td>
         <td class="start-menu-label-col">
-          <input type="text" value="<?php echo esc_html($entry->lbl); ?>" name="start-menu-nav-label-<?php echo esc_html($entry->id); ?>">
+          <input type="text" value="<?php echo esc_html($entry->lbl); ?>" name="start-menu-label-<?php echo esc_html($entry->id); ?>">
         </td>
         <td class="start-menu-link-col">
-          <input type="text" value="<?php echo esc_html($entry->link); ?>" name="start-menu-nav-link-<?php echo esc_html($entry->id); ?>">
+          <input type="text" value="<?php echo esc_html($entry->link); ?>" name="start-menu-link-<?php echo esc_html($entry->id); ?>">
         </td>
       </tr>
       <?php
@@ -149,20 +163,24 @@
 
     // Add a row with options to add new items
     ?>
-            <tr>
-              <td class="start-menu-icon-col">
-                <img src="" name="start-menu-nav-img-<?php echo esc_html($entry_count); ?>">
-                <button type="button" class="mediamanager-btn btn btn-primary">Choose Icon</button>
-              </td>
+          <tr class="start-menu-row" data-row="<?php echo esc_html($entry_count); ?>">
+            <td class="start-menu-drag-icon">
+              <div>≡</div>
+            </td>
+            <td class="start-menu-icon-col">
+                <div class="start-menu-no-icon">No<br>Icon</div>
+                <img src="" name="start-menu-img-<?php echo esc_html($entry_count); ?>" style="display: none;">
+                <button type="button" class="mediamanager-btn add-button button button-secondary">Choose<br>Icon</button>
+            </td>
             <td class="start-menu-label-col">
-              <input type="text" name="start-menu-nav-label-<?php echo esc_html($entry_count); ?>" placeholder="Blog">
+              <input type="text" name="start-menu-label-<?php echo esc_html($entry_count); ?>" placeholder="Blog">
             </td>
             <td class="start-menu-link-col">
-              <input type="text" name="start-menu-nav-link-<?php echo esc_html($entry_count); ?>" placeholder="www.sitename.com/blog/">
+              <input type="text" name="start-menu-link-<?php echo esc_html($entry_count); ?>" placeholder="www.sitename.com/blog/">
             </td>
           </tr>
           <tr>
-            <td colspan="3">
+            <td colspan="4">
               <p class="description">The Start Menu will be created dynamically based on your choices here.</p>
             </td>
           </tr>
