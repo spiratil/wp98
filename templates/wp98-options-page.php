@@ -19,14 +19,47 @@
         $id = wp98_get_database_entry_id((array)${$data_ref}, $option->opt_name );
 
         // Currently, only checkbox options are updated
-        if ( empty( $_POST[$key] ) ) $wpdb->update( $options_table, array( 'opt_val' => 0 ), array( 'opt_id' => $id ) );
+        if ( empty( $_POST[$key] ) === true ) $wpdb->update( $options_table, array( 'opt_val' => 0 ), array( 'opt_id' => $id ) );
         else $wpdb->update( $options_table, array( 'opt_val' => 1 ), array( 'opt_id' => $id ) );
       }
     }
 
     // Update menu items on the database
-    error_log( print_r( $_POST, true ) );
+    $nav_menu_ref = [];
+    foreach ( array_keys($_POST) as $key ) {
+      if ( str_starts_with( $key, 'start-menu-' ) === true ) {
+        $string_array = preg_split( '/-/', $key );
+        $nav_menu_id = $string_array[count( $string_array ) - 1];
+        if ( is_numeric( $nav_menu_id ) === false ) continue;
+        if ( in_array( $nav_menu_id, $nav_menu_ref ) === true ) continue;
+        array_push( $nav_menu_ref, (int)$nav_menu_id );
+      }
+    }
 
+    foreach ( $nav_menu_ref as $id ) {
+      // Delete the menu entry if the user left the fields blank
+      if ( empty( $_POST["start-menu-img-$id"] ) === true && empty( $_POST["start-menu-label-$id"] ) === true ) {
+        $wpdb->delete( $menu_table, array( 'id' => (int)$id ) );
+      }
+      else {
+        $label = sanitize_text_field( $_POST["start-menu-label-$id"] );
+        $image = rtrim( sanitize_url( $_POST["start-menu-img-$id"], array( 'https' ) ), '/' );
+        $link = rtrim( sanitize_url( $_POST["start-menu-link-$id"] ), '/' );
+
+        // Iterate through the current menus stored on the database and check if duplicates exist before entering
+        $is_match = false;
+        foreach ( $nav_menu as $entry ) {
+          if ( $id === (int)$entry->id ) {
+            $is_match = true;
+            $wpdb->update( $menu_table, array( 'lbl' => $label, 'img' => $image, 'link' => $link ), array( 'id' => $id ) );
+            break;
+          }
+        }
+
+        // Add a new entry to the database if the menu item doesn't exist
+        if ( $is_match === false ) $wpdb->insert( $menu_table, array( 'id' => $id, 'lbl' => $label, 'img' => $image, 'link' => $link ) );
+      }
+    }
 
     // Fetch the database settings again
     //*** Change this later to update this data as the database is updated for each variable without having to download everything again */
@@ -118,9 +151,7 @@
 
   function wp98_build_nav_menu_html() {
     global $nav_menu;
-    $entry_count = count( (array)$nav_menu ) + 1;
-    error_log( print_r('nav id count: ' . $entry_count, true) );
-    //error_log(print_r($nav_menu, true));
+    $entry_count = count( (array)$nav_menu );
     ?>
     <tr>
       <th scope="row">
@@ -128,13 +159,6 @@
       </th>
       <td>
         <table id="wp98_nav_menu_options" name="menu-items">
-        <!--
-        <tr>
-          <th class="start-menu-icon-col">Icon</th>
-          <th class="start-menu-label-col">Label</th>
-          <th class="start-menu-link-col">Link</th>
-        </tr>
-        -->
     <?php
     // Add menu items previous recorded
     foreach ( $nav_menu as $entry ) {
@@ -144,12 +168,10 @@
           <div>≡</div>
         </td>
         <td class="start-menu-icon-col">
-            <div class="start-menu-no-icon" style="display: none;">No<br>Icon</div>
-            <img src="<?php echo esc_html($entry->img); ?>" name="start-menu-img-<?php echo esc_html($entry->id); ?>">
-            <div class="start-menu-btn-flex-container">
-              <button type="button" class="mediamanager-btn button button-secondary">Change</button>
-              <button type="button" class="icon-remove-btn button button-secondary">Remove</button>
-            </div>
+          <?php
+            if ( $entry->img === null || $entry->img === '' ) wp98_build_menu_no_image_container( $entry->id );
+            else wp98_build_menu_image_container( $entry->id, $entry->img );
+          ?>
         </td>
         <td class="start-menu-label-col">
           <input type="text" value="<?php echo esc_html($entry->lbl); ?>" name="start-menu-label-<?php echo esc_html($entry->id); ?>">
@@ -168,9 +190,9 @@
               <div>≡</div>
             </td>
             <td class="start-menu-icon-col">
-                <div class="start-menu-no-icon">No<br>Icon</div>
-                <img src="" name="start-menu-img-<?php echo esc_html($entry_count); ?>" style="display: none;">
-                <button type="button" class="mediamanager-btn add-button button button-secondary">Choose<br>Icon</button>
+              <?php
+                wp98_build_menu_no_image_container( $entry_count );
+              ?>
             </td>
             <td class="start-menu-label-col">
               <input type="text" name="start-menu-label-<?php echo esc_html($entry_count); ?>" placeholder="Blog">
@@ -187,5 +209,26 @@
         </table>
       </td>
     </tr>
+    <?php
+  }
+
+  function wp98_build_menu_image_container( $id, $img ) {
+    ?>
+    <input type="hidden" name="start-menu-img-<?php echo esc_html( $id ); ?>" value="<?php echo esc_html( $img ); ?>">
+    <div class="start-menu-no-icon" style="display: none;">No<br>Icon</div>
+    <img src="<?php echo esc_html( $img ); ?>">
+    <div class="start-menu-btn-flex-container">
+      <button type="button" class="mediamanager-btn button button-secondary">Change</button>
+      <button type="button" class="icon-remove-btn button button-secondary">Remove</button>
+    </div>
+    <?php
+  }
+
+  function wp98_build_menu_no_image_container( $count ) {
+    ?>
+    <input type="hidden" name="start-menu-img-<?php echo esc_html( $count ); ?>" value="">
+    <div class="start-menu-no-icon">No<br>Icon</div>
+    <img src="" name="start-menu-img-<?php echo esc_html( $count ); ?>" style="display: none;">
+    <button type="button" class="mediamanager-btn add-button button button-secondary">Choose<br>Icon</button>
     <?php
   }

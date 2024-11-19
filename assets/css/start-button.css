@@ -75,3 +75,13 @@
   background: var(--wp98--color--dialog-blue);
   color: white;
 }
+
+
+
+body .wp98-ie-page {
+  width: 400px;
+  height: 400px;
+  position: absolute;
+  top: 100px;
+  left: 100px;
+}

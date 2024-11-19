@@ -30,8 +30,28 @@ global $wpdb, $options_table, $menu_table, $start_menu, $nav_menu;
       </div>
     <?php endif; ?>
   <?php 
-  add_filter( 'wp_nav_menu_objects', 'update_menu_link', 10, 2 );
+  wp98_insert_menu();
+  //add_filter( 'wp_nav_menu_objects', 'update_menu_link', 10, 2 );
 
+  function wp98_insert_menu(){
+    global $wpdb, $menu_table;
+    $nav_menu = $wpdb->get_results( "SELECT * FROM $menu_table" );
+    ?>
+    <nav class="window-body">
+      <ul>
+        <?php
+        foreach ( $nav_menu as $entry ) : ?>
+          <li id="wp98-menu-<?php echo $entry->id ?>" class="page-item">
+            <input type="hidden" data-id="<?php echo $entry->id ?>" value="<?php echo sanitize_url( $entry->link ); ?>">
+            <img src="<?php echo sanitize_url( $entry->img ); ?>">
+            <?php echo sanitize_text_field( $entry->lbl ); ?>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    </nav>
+  <?php }
+
+/*
   function update_menu_link($items){
     var_dump( $items );
   
@@ -51,5 +71,6 @@ global $wpdb, $options_table, $menu_table, $start_menu, $nav_menu;
       'theme_location' => 'start-menu',
       'link_before' => '<img src="https://wordpress.ddev.site/wp-content/themes/wp98/assets/images/icons/camera3-4.png">'
     ) );
+  */
   ?>
 </div>

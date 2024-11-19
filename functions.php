@@ -43,7 +43,7 @@ function wp98_create_theme_database_table() {
   if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $wpdb->esc_like( $menu_table ) ) ) !== $menu_table  ) {
     error_log( "Creating $menu_table" . ': ' . print_r( $options_table , true ) );
     $sql = "CREATE TABLE $menu_table  (
-      id mediumint(9) NOT NULL AUTO_INCREMENT,
+      id mediumint(9) NOT NULL,
       lbl varchar(255) NOT NULL,
       img varchar(2048),
       link varchar(2048),
@@ -84,6 +84,7 @@ function wp98_enqueue_styles() {
 function wp98_enqueue_scripts() {
   if ( is_front_page() ) {
     wp_enqueue_script( 'wp98-header', get_parent_theme_file_uri( '/assets/js/98.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'defer', true ) );
+    wp_enqueue_script('jquery');
   }
 }
 
@@ -114,3 +115,4 @@ function wp98_setup_admin( $hook ) {
     wp_enqueue_script( 'mediamanager-js', get_parent_theme_file_uri( '/assets/mediamanager/mediamanager.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'defer', true ) );
   }
 }
+

@@ -6,13 +6,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const menuRows = document.querySelectorAll('.start-menu-row')
   for (const [i, row] of menuRows.entries()) {
-    const noImg = row.children[1].children[0];
-    const img = row.children[1].children[1];
+    const input = row.children[1].children[0];
+    const noImg = row.children[1].children[1];
+    const img = row.children[1].children[2];
     let btnsCon, changeBtn, removeBtn, chooseBtn;
 
     // Add event listeners if the row already contains a selected icon
     if (img.nextElementSibling.type === undefined) {
-      btnsCon = row.children[1].children[2];
+      btnsCon = row.children[1].children[3];
       
       changeBtn = btnsCon.children[0];
       removeBtn = btnsCon.children[1];
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Add event listeners if the row doesn't contain a selected icon
     else {
-      chooseBtn = row.children[1].children[2];
+      chooseBtn = row.children[1].children[3];
 
       addChooseIconEventListener(chooseBtn);
     }
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mediamanager.open();
         mediamanager.options.insertType = 'html';
         mediamanager.options.insert = chosenImg => {
+          input.value = chosenImg.src;
           img.src = chosenImg.src;
           img.style.display = 'inline-block';
           noImg.style.display = 'none';
@@ -49,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         img.style.display = 'none';
 
         // Remove the old buttons and add a "choose" button
+        input.value = '';
         btnsCon.remove();
         chooseBtn = document.createElement('button');
         chooseBtn.type = 'button';
@@ -65,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mediamanager.open();
         mediamanager.options.insertType = 'html';
         mediamanager.options.insert = chosenImg => {
+          input.value = chosenImg.src;
           img.src = chosenImg.src;
           img.style.display = 'inline-block';
           noImg.style.display = 'none';
