@@ -13,16 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const mouseEnterHoverEvent = document.querySelector('#wp98-start-menu nav').addEventListener('mouseover', e => {
     if (e.target.tagName === 'UL') return;
     else if (e.target.tagName === 'LI') e.target.classList.add('menu-hover');
-    else if (e.target.tagName === 'A') e.target.parentElement.classList.add('menu-hover');
-    else if (e.target.tagName === 'IMG') e.target.parentElement.parentElement.classList.add('menu-hover');
+    else if (e.target.tagName === 'IMG') e.target.parentElement.classList.add('menu-hover');
+    else if (e.target.tagName === 'SPAN') e.target.parentElement.classList.add('menu-hover');
   }, true);
 
   // Menu item hover exit
   const mouseExitHoverEvent = document.querySelector('#wp98-start-menu nav').addEventListener('mouseout', e => {
     if (e.target.tagName === 'UL') return;
     else if (e.target.tagName === 'LI') e.target.classList.remove('menu-hover');
-    else if (e.target.tagName === 'A') e.target.parentElement.classList.remove('menu-hover');
-    else if (e.target.tagName === 'IMG') e.target.parentElement.parentElement.classList.remove('menu-hover');
+    else if (e.target.tagName === 'IMG') e.target.parentElement.classList.remove('menu-hover');
+    else if (e.target.tagName === 'SPAN') e.target.parentElement.classList.remove('menu-hover');
   }, true);
 
   function showHideStartMenu() {
@@ -35,19 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Menu item event listener and handling
   menuItems.forEach(
     item => item.addEventListener('click', e => {
-      const id = item.children[0].getAttribute('data-id');
-      const url = item.children[0].value;
+      const id = item.getAttribute('data-id');
+      const url = item.getAttribute('data-link');
       if (document.querySelector(`#wp98-page-${id}`) !== null) return;
       
       const page = document.createElement('div');
       page.id = `wp98-page-${id}`;
-      page.classList.add('wp98-ie-page');
+      page.classList.add('wp98-page', 'window');
       page.innerHTML = 'Content loading...'
-
       document.querySelector('body').appendChild(page);
 
-    
-
+      // Fetch the page using AJAX
       const xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -56,14 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      xhttp.open("GET", url, true);
-      //xhttp.setRequestHeader('Accept', 'text/html');
+      xhttp.open("GET", `/wp-content/themes/wp98/templates/page.php?id=${id}`, true);
       xhttp.send();
-
-      document.querySelector('body').appendChild(page);
-
-
     })
   );
-
 });

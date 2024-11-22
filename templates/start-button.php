@@ -14,16 +14,16 @@ global $wpdb, $options_table, $menu_table, $start_menu, $nav_menu;
     
 <div id="wp98-start-menu" class="window">
   <?php 
-    if ( intval( $wpdb->get_var( "SELECT opt_val FROM $options_table WHERE opt_name='show-title-bar'" ) ) === 1 ) : ?>
+    if ( intval( $wpdb->get_var( "SELECT val FROM $options_table WHERE name='show-title-bar'" ) ) === 1 ) : ?>
       <div class="title-bar">
         <div class="title-bar-text">
           <?php
-            if ( intval( $wpdb->get_var( "SELECT opt_val FROM $options_table WHERE opt_name='show-site-logo'" ) ) === 1 ) :
+            if ( intval( $wpdb->get_var( "SELECT val FROM $options_table WHERE name='show-site-logo'" ) ) === 1 ) :
               if ( has_site_icon() ) {
                 echo '<img src="' . get_site_icon_url(32) . '" alt="' . get_bloginfo('name') . ' Logo">';
               }
             endif;
-            if ( intval( $wpdb->get_var( "SELECT opt_val FROM $options_table WHERE opt_name='show-site-title'" ) ) === 1 )
+            if ( intval( $wpdb->get_var( "SELECT val FROM $options_table WHERE name='show-site-title'" ) ) === 1 )
               echo '<h1>' . get_bloginfo('name') . '</h1>';
           ?>
         </div>
@@ -38,13 +38,12 @@ global $wpdb, $options_table, $menu_table, $start_menu, $nav_menu;
     $nav_menu = $wpdb->get_results( "SELECT * FROM $menu_table" );
     ?>
     <nav class="window-body">
-      <ul>
+      <ul class="nav-list">
         <?php
         foreach ( $nav_menu as $entry ) : ?>
-          <li id="wp98-menu-<?php echo $entry->id ?>" class="page-item">
-            <input type="hidden" data-id="<?php echo $entry->id ?>" value="<?php echo sanitize_url( $entry->link ); ?>">
+          <li id="wp98-menu-<?php echo $entry->id ?>" class="page-item" data-id="<?php echo $entry->id ?>" data-link="<?php echo sanitize_url( $entry->link ); ?>">
             <img src="<?php echo sanitize_url( $entry->img ); ?>">
-            <?php echo sanitize_text_field( $entry->lbl ); ?>
+            <span><?php echo sanitize_text_field( $entry->lbl ); ?></span>
           </li>
         <?php endforeach; ?>
       </ul>

@@ -26,13 +26,13 @@ function wp98_create_theme_database_table() {
   if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $wpdb->esc_like( $options_table )  ) ) !== $options_table  ) {
     error_log( "Creating $options_table" . ': ' . print_r( $options_table , true ) );
     $sql = "CREATE TABLE $options_table  (
-      opt_id mediumint(9) NOT NULL AUTO_INCREMENT,
-      opt_name varchar(32) NOT NULL,
-      opt_cat varchar(10) NOT NULL,
-      opt_lbl varchar(32),
-      opt_desc text,
-      opt_val text,
-      PRIMARY KEY (opt_id)
+      id mediumint(9) NOT NULL AUTO_INCREMENT,
+      `name` varchar(32) NOT NULL,
+      cat varchar(10) NOT NULL,
+      lbl varchar(32),
+      `desc` text,
+      val text,
+      PRIMARY KEY (id)
     ) $charset_collate;";
   
     dbDelta( $sql );
@@ -40,13 +40,14 @@ function wp98_create_theme_database_table() {
     wp98_fill_empty_database_options_table( $wpdb, $options_table );
   } 
 
+
   if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $wpdb->esc_like( $menu_table ) ) ) !== $menu_table  ) {
     error_log( "Creating $menu_table" . ': ' . print_r( $options_table , true ) );
     $sql = "CREATE TABLE $menu_table  (
       id mediumint(9) NOT NULL,
+      ord mediumint(9) NOT NULL,
       lbl varchar(255) NOT NULL,
       img varchar(2048),
-      link varchar(2048),
       PRIMARY KEY (id)
     ) $charset_collate;";
   
@@ -57,14 +58,14 @@ function wp98_create_theme_database_table() {
 // Create the schema and default options for database tables
 function wp98_fill_empty_database_options_table( $wpdb, $table ) {
   $wpdb->query("INSERT INTO $table
-                (opt_name, opt_cat, opt_lbl, opt_desc, opt_val)
+                (`name`, cat, lbl, `desc`, val)
                 VALUES
                 ('show-title-bar', 'start-menu', 'Title Bar', NULL, 1),
                 ('show-site-logo', 'start-menu', 'Logo', NULL, 1),
                 ('show-site-title', 'start-menu', 'Site Title', NULL, 1)
               ");
   /*
-  $entry =  array( 'opt_name' => 'show-site-logo', 'opt_cat' => 'start-menu', 'opt_lbl' => 'Show Logo in Start Menu', 'opt_val' => 1 );
+  $entry =  array( 'name' => 'show-site-logo', 'cat' => 'start-menu', 'lbl' => 'Show Logo in Start Menu', 'val' => 1 );
 
   $wpdb->insert( $table, $entry );
   */

@@ -6,14 +6,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const menuRows = document.querySelectorAll('.start-menu-row')
   for (const [i, row] of menuRows.entries()) {
-    const input = row.children[1].children[0];
-    const noImg = row.children[1].children[1];
-    const img = row.children[1].children[2];
+    // Page drop down elements
+    const pageSelEl = row.children[4].children[1];
+    const pageInputEl = row.children[4].children[0];
+    const actionInputEl = row.children[0];
+    const orderInputEl = row.children[1];
+    const originalPageId = pageSelEl.value;
+    const originalRow = Array.from(row.parentNode.children).indexOf(row);
+
+    // Icon elements
+    const iconInputEl = row.children[3].children[0];
+    const noImgEl = row.children[3].children[1];
+    const imgEl = row.children[3].children[2];
+    const originalImgUrl = iconInputEl.value !== '' ?
+      iconInputEl.value :
+      '';
     let btnsCon, changeBtn, removeBtn, chooseBtn;
 
+    // Page selection dropdown event listener
+    pageSelEl.addEventListener('change', () => {
+      updateInputValueState();
+    });
+
     // Add event listeners if the row already contains a selected icon
-    if (img.nextElementSibling.type === undefined) {
-      btnsCon = row.children[1].children[3];
+    if (imgEl.nextElementSibling.type === undefined) {
+      btnsCon = row.children[3].children[3];
       
       changeBtn = btnsCon.children[0];
       removeBtn = btnsCon.children[1];
@@ -24,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Add event listeners if the row doesn't contain a selected icon
     else {
-      chooseBtn = row.children[1].children[3];
+      chooseBtn = row.children[3].children[3];
 
       addChooseIconEventListener(chooseBtn);
     }
@@ -35,10 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
         mediamanager.open();
         mediamanager.options.insertType = 'html';
         mediamanager.options.insert = chosenImg => {
-          input.value = chosenImg.src;
-          img.src = chosenImg.src;
-          img.style.display = 'inline-block';
-          noImg.style.display = 'none';
+          iconInputEl.value = chosenImg.src;
+          imgEl.src = chosenImg.src;
+          imgEl.style.display = 'inline-block';
+          noImgEl.style.display = 'none';
         }
       });
     }
@@ -46,19 +63,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for the "remove" button
     function addRemoveIconEventListener(element) {
       element.addEventListener('click', () => {
-        noImg.style.display = 'inline-flex';
-        img.src = '';
-        img.style.display = 'none';
+        noImgEl.style.display = 'inline-flex';
+        imgEl.src = '';
+        imgEl.style.display = 'none';
 
         // Remove the old buttons and add a "choose" button
-        input.value = '';
+        iconInputEl.value = '';
         btnsCon.remove();
         chooseBtn = document.createElement('button');
         chooseBtn.type = 'button';
         chooseBtn.classList.add('mediamanager-btn', 'add-button', 'button', 'button-secondary');
         chooseBtn.innerHTML = 'Choose<br>Icon';
-        row.children[1].appendChild(chooseBtn);
+        row.children[3].appendChild(chooseBtn);
         addChooseIconEventListener(chooseBtn);
+
+        updateInputValueState();
       });
     }
 
@@ -68,10 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
         mediamanager.open();
         mediamanager.options.insertType = 'html';
         mediamanager.options.insert = chosenImg => {
-          input.value = chosenImg.src;
-          img.src = chosenImg.src;
-          img.style.display = 'inline-block';
-          noImg.style.display = 'none';
+          iconInputEl.value = chosenImg.src;
+          imgEl.src = chosenImg.src;
+          imgEl.style.display = 'inline-block';
+          noImgEl.style.display = 'none';
 
           // Remove the old buttons and add a "choose" button
           chooseBtn.remove();
@@ -91,13 +110,32 @@ document.addEventListener('DOMContentLoaded', () => {
           btnsCon = document.createElement('div');
           btnsCon.classList.add('start-menu-btn-flex-container');
           btnsCon.append(changeBtn, removeBtn);
-          row.children[1].appendChild(btnsCon);
+          row.children[3].appendChild(btnsCon);
+
+          updateInputValueState();
         }
       });
     }
 
-  }
+    // Update the values to be returned to the php page when the form is submitted
+    function updateInputValueState() {
+      if (pageSelEl.value === 'choose') {
+        actionInputEl.value = 'delete';
+        pageInputEl.value = originalPageId;
+      }
+      else if (pageSelEl.value === originalPageId && iconInputEl.value === originalImgUrl) {
+        actionInputEl.value = 'no-change';
+        pageInputEl.value = originalPageId;
+      }
+      else {
+        actionInputEl.value = 'update';
+        pageInputEl.value = pageSelEl.value;
+      }
 
-  
+      // Row number in the table
+      const row = Array.from(row.parentNode.children).indexOf(row);
+      orderInputEl.value = row;
+    }
+  }
 });
 

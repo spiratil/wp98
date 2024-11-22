@@ -33,7 +33,9 @@
 
 #wp98-start-menu .title-bar-text h1 {
   margin: 0;
-  font-size: large;
+  font-family: Arial;
+  font-weight: 900;
+  font-size: x-large;
 }
 
 
@@ -41,33 +43,35 @@
   transform: rotate(90deg);
 }
 
-#wp98-start-menu nav {
+#wp98-start-menu nav.window-body {
   flex-grow: 1;
   margin: 0;
+  min-width: 150px;
+  min-height: 200px;
 }
 
-#wp98-start-menu nav ul {
+#wp98-start-menu nav.window-body ul {
   margin: 0;
   list-style: none;
   padding: 0;
 }
 
-#wp98-start-menu nav ul li {
+#wp98-start-menu nav.window-body ul li {
   padding: 2px 3px 3px 7px;
 }
 
-#wp98-start-menu nav ul img {
+#wp98-start-menu nav.window-body ul img {
   max-width: 40px;
+  vertical-align: middle;
 }
 
-#wp98-start-menu nav ul a {
+#wp98-start-menu nav.window-body ul span {
   text-decoration: none;
   color: inherit;
   font-size: 12px;
-  display: flex;
-  justify-content: left;
-  align-items: center;
-  gap: 6px;
+  display: inline-block;
+  padding-left: 6px;
+  vertical-align: middle;
   user-select: none;
 }
 
@@ -78,10 +82,28 @@
 
 
 
-body .wp98-ie-page {
+body .wp98-page {
   width: 400px;
   height: 400px;
-  position: absolute;
+  position: relative;
   top: 100px;
-  left: 100px;
+  left: 300px;
+}
+
+body .wp98-page .status-bar {
+  position: absolute;
+  width: 98%;
+  bottom: 4px;
+}
+
+body .wp98-page .wp98-content {
+  appearance: none;
+  background-color: #fff;
+  border-radius: 0;
+  box-shadow: inset -1px -1px #fff,inset 1px 1px grey,inset -2px -2px #dfdfdf,inset 2px 2px #0a0a0a;
+  box-sizing: border-box;
+  padding: 3px 4px;
+  height: 86%;
+  overflow: scroll;
+  scroll-behavior: smooth;
 }

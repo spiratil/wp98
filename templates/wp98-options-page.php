@@ -1,69 +1,87 @@
 <?php 
   global $wpdb, $options_table, $menu_table, $start_menu, $nav_menu;
-  
+
   // Option categories sorted into an array
-  foreach ( $wpdb->get_results( "SELECT DISTINCT opt_cat FROM $options_table") as $value )
-    $categories[] = $value->opt_cat;
+  foreach ( $wpdb->get_results( "SELECT DISTINCT cat FROM $options_table") as $value )
+    $categories[] = $value->cat;
 
   // Database settings
-  $start_menu = $wpdb->get_results( "SELECT * FROM $options_table WHERE opt_cat='start-menu'" );
+  $start_menu = $wpdb->get_results( "SELECT * FROM $options_table WHERE cat='start-menu'" );
   $nav_menu = $wpdb->get_results( "SELECT * FROM $menu_table" );
 
   // Check if the form on the page has been submitted
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    error_log( print_r( "---------------------------------------------------------------\n", true) );
+    error_log( print_r( $nav_menu, true) );
+    error_log( print_r( $_POST, true) );
     // Update items from the options table on the database
     foreach ( $categories as $cat ) {
       $data_ref = str_replace( '-', '_', $cat );
       foreach ( ${$data_ref} as $option ) {
-        $key = $cat . '-' . $option->opt_name;
-        $id = wp98_get_database_entry_id((array)${$data_ref}, $option->opt_name );
+        $key = $cat . '-' . $option->name;
+        $id = wp98_get_database_entry_id((array)${$data_ref}, $option->name );
 
         // Currently, only checkbox options are updated
-        if ( empty( $_POST[$key] ) === true ) $wpdb->update( $options_table, array( 'opt_val' => 0 ), array( 'opt_id' => $id ) );
-        else $wpdb->update( $options_table, array( 'opt_val' => 1 ), array( 'opt_id' => $id ) );
+        if ( empty( $_POST[$key] ) === true ) $wpdb->update( $options_table, array( 'val' => 0 ), array( 'id' => $id ) );
+        else $wpdb->update( $options_table, array( 'val' => 1 ), array( 'id' => $id ) );
       }
     }
 
     // Update menu items on the database
-    $nav_menu_ref = [];
     foreach ( array_keys($_POST) as $key ) {
-      if ( str_starts_with( $key, 'start-menu-' ) === true ) {
+      if ( str_contains( $key, 'start-menu-action' ) === true ) {
         $string_array = preg_split( '/-/', $key );
-        $nav_menu_id = $string_array[count( $string_array ) - 1];
-        if ( is_numeric( $nav_menu_id ) === false ) continue;
-        if ( in_array( $nav_menu_id, $nav_menu_ref ) === true ) continue;
-        array_push( $nav_menu_ref, (int)$nav_menu_id );
-      }
-    }
+        $menu_id = $string_array[ count( $string_array ) - 1 ];
 
-    foreach ( $nav_menu_ref as $id ) {
-      // Delete the menu entry if the user left the fields blank
-      if ( empty( $_POST["start-menu-img-$id"] ) === true && empty( $_POST["start-menu-label-$id"] ) === true ) {
-        $wpdb->delete( $menu_table, array( 'id' => (int)$id ) );
-      }
-      else {
-        $label = sanitize_text_field( $_POST["start-menu-label-$id"] );
-        $image = rtrim( sanitize_url( $_POST["start-menu-img-$id"], array( 'https' ) ), '/' );
-        $link = rtrim( sanitize_url( $_POST["start-menu-link-$id"] ), '/' );
+        if ( $_POST["start-menu-action-$menu_id"] === 'no-change' ) continue;
 
-        // Iterate through the current menus stored on the database and check if duplicates exist before entering
-        $is_match = false;
-        foreach ( $nav_menu as $entry ) {
-          if ( $id === (int)$entry->id ) {
-            $is_match = true;
-            $wpdb->update( $menu_table, array( 'lbl' => $label, 'img' => $image, 'link' => $link ), array( 'id' => $id ) );
-            break;
-          }
+        /*
+        $id;
+        if ( $_POST["start-menu-dropdown-$menu_id"] === 'choose' )
+        */
+          $id = (int)( $_POST["start-menu-page-id-$menu_id"] );
+        //else $id = (int)( $_POST["start-menu-dropdown-$menu_id"] );
+        var_dump($id);
+        if ( $_POST["start-menu-action-$menu_id"] === 'delete' ) {
+          error_log( print_r( "DELETE: $id", true ) );
+          $wpdb->delete( $menu_table, array( 'id' => $id ) );
+          continue;
         }
 
-        // Add a new entry to the database if the menu item doesn't exist
-        if ( $is_match === false ) $wpdb->insert( $menu_table, array( 'id' => $id, 'lbl' => $label, 'img' => $image, 'link' => $link ) );
+        if ( $_POST["start-menu-action-$menu_id"] === 'update' ) {
+          $ord = (int)( $_POST["start-menu-order-$menu_id"] );
+          $label = get_the_title( $id );
+          if ( $label === '' ) continue;
+          $image = empty( $_POST["start-menu-img-$menu_id"] )
+            ? NULL
+            : rtrim( sanitize_url( $_POST["start-menu-img-$ord"], array( 'https' ) ), '/' );
+
+          error_log( print_r( "ID: $id ORD: $ord LABEL: $label IMAGE: $image", true ) );
+
+          // Iterate through the current menus stored on the database and check if duplicates exist before entering
+          $is_match = false;
+          foreach ( $nav_menu as $entry ) {
+            if ( $id === (int)$entry->id ) {
+              error_log( print_r( "UPDATE: $id", true ) );
+              $is_match = true;
+              $wpdb->update( $menu_table, array( 'ord' => $ord, 'lbl' => $label, 'img' => $image ), array( 'id' => $id ) );
+              break;
+            }
+          }
+
+          // Add a new entry to the database if the menu item doesn't exist
+          if ( $is_match === false ) {
+            error_log( print_r( "INSERT: $id", true ) );
+            $wpdb->insert( $menu_table, array( 'id' => $id, 'ord' => $ord, 'lbl' => $label, 'img' => $image ) );
+          }
+          
+        }
       }
     }
 
     // Fetch the database settings again
     //*** Change this later to update this data as the database is updated for each variable without having to download everything again */
-    $start_menu = $wpdb->get_results( "SELECT * FROM $options_table WHERE opt_cat='start-menu'" );
+    $start_menu = $wpdb->get_results( "SELECT * FROM $options_table WHERE cat='start-menu'" );
     $nav_menu = $wpdb->get_results( "SELECT * FROM $menu_table" );
   }
 ?>
@@ -109,7 +127,7 @@
 <?php
   // Find the id entry in the database for the given name entry
   function wp98_get_database_entry_id( $array, $key ) {
-    $keys = array_column( $array, 'opt_name', 'opt_id');
+    $keys = array_column( $array, 'name', 'id');
     $index = array_search( $key,$keys );
     return $index;
   }
@@ -119,13 +137,13 @@
     global $wpdb;
 
     foreach ( $data as $option ) {
-      if ( strlen(intval( $option->opt_val) ) === 1 && intval( $option->opt_val ) <= 1 ) {
+      if ( strlen(intval( $option->val) ) === 1 && intval( $option->val ) <= 1 ) {
         wp98_build_checkbox_html(
-          $option->opt_name,
-          $option->opt_cat,
-          $option->opt_lbl,
-          $option->opt_desc,
-          intval( $option->opt_val )
+          $option->name,
+          $option->cat,
+          $option->lbl,
+          $option->desc,
+          intval( $option->val )
         );
       }
     }
@@ -152,7 +170,17 @@
   function wp98_build_nav_menu_html() {
     global $nav_menu;
     $entry_count = count( (array)$nav_menu );
+
+    // Create an array of all pages available on the site    
+    $page_ids = get_all_page_ids();
+    $page_array = [];
+    foreach ( $page_ids as $page_id ) {
+      $key = get_the_title( $page_id );
+      $page_array[ $key ] = $page_id;
+    }
+    ksort( $page_array );
     ?>
+
     <tr>
       <th scope="row">
         <label for="menu-items">Menu Items</label>
@@ -161,31 +189,42 @@
         <table id="wp98_nav_menu_options" name="menu-items">
     <?php
     // Add menu items previous recorded
-    foreach ( $nav_menu as $entry ) {
-      ?>
-      <tr class="start-menu-row" data-row="<?php echo esc_html($entry->id); ?>">
-        <td class="start-menu-drag-icon">
-          <div>≡</div>
-        </td>
-        <td class="start-menu-icon-col">
-          <?php
-            if ( $entry->img === null || $entry->img === '' ) wp98_build_menu_no_image_container( $entry->id );
-            else wp98_build_menu_image_container( $entry->id, $entry->img );
+    for ($i = 0; $i < $entry_count; $i++ ) {
+      foreach ( $nav_menu as $entry ) {
+        if ( $i === (int)$entry->ord ) {
           ?>
-        </td>
-        <td class="start-menu-label-col">
-          <input type="text" value="<?php echo esc_html($entry->lbl); ?>" name="start-menu-label-<?php echo esc_html($entry->id); ?>">
-        </td>
-        <td class="start-menu-link-col">
-          <input type="text" value="<?php echo esc_html($entry->link); ?>" name="start-menu-link-<?php echo esc_html($entry->id); ?>">
-        </td>
-      </tr>
-      <?php
+          <tr class="start-menu-row">
+            <input type="hidden" name="start-menu-action-<?php echo $i; ?>" value="no-change">
+            <input type="hidden" name="start-menu-order-<?php echo $i; ?>" value="<?php echo $i; ?>">
+            <td class="start-menu-drag-icon">
+              <div>≡</div>
+            </td>
+            <td class="start-menu-icon-col">
+              <?php
+                if ( $entry->img === null || $entry->img === '' ) wp98_build_menu_no_image_container( $i );
+                else wp98_build_menu_image_container( $i, $entry->img );
+              ?>
+            </td>
+            <td class="start-menu-page-col">
+              <input type="hidden" name="start-menu-page-id-<?php echo $i; ?>" value="<?php echo $entry->id; ?>">
+              <select name="start-menu-dropdown-<?php echo $i; ?>">
+                <option value="choose"></option>
+                <?php foreach( $page_array as $page => $page_id ) : ?>
+                  <option value="<?php echo $page_id; ?>" <?php if ( $page_id === $entry->id ) echo 'selected="selected"'; ?>><?php echo $page; ?></option>
+                <?php endforeach ?>
+              </select>
+            </td>
+          </tr>
+          <?php
+        }
+      }
     }
 
     // Add a row with options to add new items
     ?>
-          <tr class="start-menu-row" data-row="<?php echo esc_html($entry_count); ?>">
+          <tr class="start-menu-row">
+            <input type="hidden" name="start-menu-action-<?php echo esc_html( $entry_count ); ?>" value="delete">
+            <input type="hidden" name="start-menu-order-<?php echo esc_html( $entry_count ); ?>" value="<?php echo esc_html( $entry_count ); ?>">
             <td class="start-menu-drag-icon">
               <div>≡</div>
             </td>
@@ -194,11 +233,14 @@
                 wp98_build_menu_no_image_container( $entry_count );
               ?>
             </td>
-            <td class="start-menu-label-col">
-              <input type="text" name="start-menu-label-<?php echo esc_html($entry_count); ?>" placeholder="Blog">
-            </td>
-            <td class="start-menu-link-col">
-              <input type="text" name="start-menu-link-<?php echo esc_html($entry_count); ?>" placeholder="www.sitename.com/blog/">
+            <td class="start-menu-page-col">
+              <input type="hidden" name="start-menu-page-id-<?php echo esc_html( $entry_count ); ?>" value="">
+              <select name="start-menu-dropdown-<?php echo esc_html( $entry_count ); ?>">
+                <option value="choose"></option>
+                <?php foreach( $page_array as $page => $page_id ) : ?>
+                  <option value="<?php echo $page_id; ?>"><?php echo $page; ?></option>
+                <?php endforeach ?>
+              </select>
             </td>
           </tr>
           <tr>
@@ -212,9 +254,9 @@
     <?php
   }
 
-  function wp98_build_menu_image_container( $id, $img ) {
+  function wp98_build_menu_image_container( $ord, $img ) {
     ?>
-    <input type="hidden" name="start-menu-img-<?php echo esc_html( $id ); ?>" value="<?php echo esc_html( $img ); ?>">
+    <input type="hidden" name="start-menu-img-<?php echo esc_html( $ord ); ?>" value="<?php echo esc_html( $img ); ?>">
     <div class="start-menu-no-icon" style="display: none;">No<br>Icon</div>
     <img src="<?php echo esc_html( $img ); ?>">
     <div class="start-menu-btn-flex-container">
@@ -224,11 +266,11 @@
     <?php
   }
 
-  function wp98_build_menu_no_image_container( $count ) {
+  function wp98_build_menu_no_image_container( $ord ) {
     ?>
-    <input type="hidden" name="start-menu-img-<?php echo esc_html( $count ); ?>" value="">
+    <input type="hidden" name="start-menu-img-<?php echo esc_html( $ord ); ?>" value="">
     <div class="start-menu-no-icon">No<br>Icon</div>
-    <img src="" name="start-menu-img-<?php echo esc_html( $count ); ?>" style="display: none;">
+    <img src="" style="display: none;">
     <button type="button" class="mediamanager-btn add-button button button-secondary">Choose<br>Icon</button>
     <?php
   }
