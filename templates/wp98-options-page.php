@@ -196,17 +196,18 @@
           <tr class="start-menu-row">
             <input type="hidden" name="start-menu-action-<?php echo $i; ?>" value="no-change">
             <input type="hidden" name="start-menu-order-<?php echo $i; ?>" value="<?php echo $i; ?>">
+            <input type="hidden" name="start-menu-page-id-<?php echo $i; ?>" value="<?php echo $entry->id; ?>">
+            <input type="hidden" name="start-menu-img-<?php echo esc_html( $i ); ?>" value="<?php echo esc_html( $entry->img ); ?>">
             <td class="start-menu-drag-icon">
               <div>≡</div>
             </td>
             <td class="start-menu-icon-col">
               <?php
-                if ( $entry->img === null || $entry->img === '' ) wp98_build_menu_no_image_container( $i );
-                else wp98_build_menu_image_container( $i, $entry->img );
+                if ( $entry->img === null || $entry->img === '' ) wp98_build_menu_no_image_container();
+                else wp98_build_menu_image_container( $entry->img );
               ?>
             </td>
             <td class="start-menu-page-col">
-              <input type="hidden" name="start-menu-page-id-<?php echo $i; ?>" value="<?php echo $entry->id; ?>">
               <select name="start-menu-dropdown-<?php echo $i; ?>">
                 <option value="choose"></option>
                 <?php foreach( $page_array as $page => $page_id ) : ?>
@@ -225,16 +226,17 @@
           <tr class="start-menu-row">
             <input type="hidden" name="start-menu-action-<?php echo esc_html( $entry_count ); ?>" value="delete">
             <input type="hidden" name="start-menu-order-<?php echo esc_html( $entry_count ); ?>" value="<?php echo esc_html( $entry_count ); ?>">
+            <input type="hidden" name="start-menu-page-id-<?php echo esc_html( $entry_count ); ?>" value="">
+            <input type="hidden" name="start-menu-img-<?php echo esc_html( $entry_count ); ?>" value="">
             <td class="start-menu-drag-icon">
               <div>≡</div>
             </td>
             <td class="start-menu-icon-col">
               <?php
-                wp98_build_menu_no_image_container( $entry_count );
+                wp98_build_menu_no_image_container();
               ?>
             </td>
             <td class="start-menu-page-col">
-              <input type="hidden" name="start-menu-page-id-<?php echo esc_html( $entry_count ); ?>" value="">
               <select name="start-menu-dropdown-<?php echo esc_html( $entry_count ); ?>">
                 <option value="choose"></option>
                 <?php foreach( $page_array as $page => $page_id ) : ?>
@@ -254,9 +256,8 @@
     <?php
   }
 
-  function wp98_build_menu_image_container( $ord, $img ) {
+  function wp98_build_menu_image_container( $img ) {
     ?>
-    <input type="hidden" name="start-menu-img-<?php echo esc_html( $ord ); ?>" value="<?php echo esc_html( $img ); ?>">
     <div class="start-menu-no-icon" style="display: none;">No<br>Icon</div>
     <img src="<?php echo esc_html( $img ); ?>">
     <div class="start-menu-btn-flex-container">
@@ -266,9 +267,8 @@
     <?php
   }
 
-  function wp98_build_menu_no_image_container( $ord ) {
+  function wp98_build_menu_no_image_container( ) {
     ?>
-    <input type="hidden" name="start-menu-img-<?php echo esc_html( $ord ); ?>" value="">
     <div class="start-menu-no-icon">No<br>Icon</div>
     <img src="" style="display: none;">
     <button type="button" class="mediamanager-btn add-button button button-secondary">Choose<br>Icon</button>

@@ -41,7 +41,7 @@ global $wpdb, $options_table, $menu_table, $start_menu, $nav_menu;
       <ul class="nav-list">
         <?php
         foreach ( $nav_menu as $entry ) : ?>
-          <li id="wp98-menu-<?php echo $entry->id ?>" class="page-item" data-id="<?php echo $entry->id ?>" data-link="<?php echo sanitize_url( $entry->link ); ?>">
+          <li id="wp98-menu-<?php echo $entry->id ?>" class="page-item" data-id="<?php echo $entry->id ?>">
             <img src="<?php echo sanitize_url( $entry->img ); ?>">
             <span><?php echo sanitize_text_field( $entry->lbl ); ?></span>
           </li>
