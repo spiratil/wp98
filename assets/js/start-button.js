@@ -38,8 +38,11 @@ jQuery(document).ready(function($) {
 
       // Fetch the page content
       $.ajax({
-        url: `/wp-content/themes/wp98/templates/page.php?id=${id}`,
-        success: (content) => page.html(content)
+        url: `/wp-content/themes/wp98/templates/page.php?id=${id}&buildpage=1`,
+        success: content => {
+          page.html(content);
+          pm.addPage(id);
+        }
       });
     });
   });
