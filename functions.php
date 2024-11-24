@@ -13,12 +13,58 @@ $menu_table = $wpdb->prefix . 'wp98_menus';
 
 //add_action( 'switch_theme', 'wp98_remove_theme_options_menu' );
 add_action( 'admin_enqueue_scripts', 'wp98_setup_admin' );
-add_action( 'wp_enqueue_scripts', 'wp98_setup' );
+add_action( 'wp_enqueue_scripts', 'wp98_setup_files' );
 add_action( 'admin_menu', 'wp98_add_custom_admin_menu' );
-add_action( 'after_switch_theme', 'wp98_create_theme_database_table' );
+add_action( 'after_switch_theme', 'wp98_theme_initialisation' );
+add_action( 'admin_enqueue_scripts', 'wp98_add_custom_disabled_fields_js' );
+
+function wp98_add_custom_disabled_fields_js() {
+    if ( 'options-reading' == get_current_screen()->id && ! current_user_can( 'manage_network_options' ) ) {
+        wp_enqueue_script( 'wp98_custom_disable_fields', get_parent_theme_file_uri( '/assets/js/disable-homepage-setting.js' ), array( 'jquery' ), false, true );
+    }
+}
+
+// Initialise the theme on activation
+function wp98_theme_initialisation() {
+  wp98_set_static_homepage();
+  wp98_create_theme_database_table();
+}
+
+// Ensure a static page is set to load for the website
+function wp98_set_static_homepage() {
+  // Check if the WP 98 Homepage exists
+  $pages = get_pages();
+  $homepage_id = 0;
+  foreach ( $pages as $page ) {
+    if ( $page->post_title === 'WP98 Homepage - DO NOT MODIFY' ) {
+      $homepage_id = absint( $page->ID );
+      break;
+    };
+  }
+
+  // Create a new homepage if it doesn't exist
+  if ( $homepage_id === 0 ) {
+    global $user_ID;
+    $new_post = array(
+      'post_title' => 'WP98 Homepage - DO NOT MODIFY',
+      'post_status' => 'publish',
+      'post_date' => date('Y-m-d H:i:s'),
+      'post_author' => $user_ID,
+      'post_type' => 'page',
+      'post_category' => []
+    );
+    $homepage_id = wp_insert_post($new_post);
+  }
+  
+  // Set the homepage for the website
+  update_option( 'show_on_front', 'page' );
+  update_option( 'page_on_front', $homepage_id );
+}
+
 
 // Check if the database tables exist and create them if not
 function wp98_create_theme_database_table() {
+  // Prepare the database
   global $wpdb, $options_table, $menu_table;
   require_once ABSPATH . 'wp-admin/includes/upgrade.php';
   $charset_collate = $wpdb->get_charset_collate();
@@ -71,7 +117,7 @@ function wp98_fill_empty_database_options_table( $wpdb, $table ) {
   */
 }
 
-function wp98_setup() {
+function wp98_setup_files() {
   wp98_enqueue_styles();
   wp98_enqueue_scripts();
 }
