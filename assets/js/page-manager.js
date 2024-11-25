@@ -2,15 +2,26 @@
 const pm = (function($){
   let pages = [];
 
+  // Window Movement
+  let isWindowBeingMoved = false;
+  let windowOffset, mousePos;
+  let pageBeingMoved;
+
+  // Window Maximise
+  let isWindowMaximised = false;
+  let minimisedSize;
+
   function addPage(id) {
     pages.push($(`#wp98-page-${id}`));
     _repurposeLinks(pages[pages.length - 1]);
+    _registerEventListeners(pages[pages.length - 1]);
   }
 
-  function removePage(id) {
+  function _removePage(id) {
     pages.forEach((page, index, pages) => {
       if (page.attr('id') === `wp98-page-${id}`) {
         pages.splice(index, 1);
+        page.remove();
         return;
       }
     })
@@ -40,72 +51,102 @@ const pm = (function($){
     const pageContent = $(`#${page.attr('id')} .wp98-content`);
     
     $.ajax({
-      url: `/wp-content/themes/wp98/templates/page.php?id=${id}`,
+      url: `/wp-content/themes/wp98/templates/${type}.php?id=${id}`,
       success: content => {
         pageContent.html(content);
         _repurposeLinks(page);
       }
     });
   }
-  
-  return {
-    addPage: (id) => addPage(id),
-    removePage: (id) => removePage(id)
-  };
-  
-  
-  $(document).ready(function($) {
-    console.log('woot')
+
+  $(document).on({
+    // Deregister page windows from being moved when the mouse button is lifted
+    mouseup: () => { isWindowBeingMoved = false; },
+    // Track window movement to keep movement consistent when mouse is moved off element being moved
+    mousemove: _moveWindow,
   });
 
-   
-    /*
-    // Get the element for the page loaded  
-    const page = $('.wp98-page').last();
-    
-    // Fetch and assign an event listener to every <a> link on the page
-    let links = $(`#${page.attr('id')} a`);
-    
-    $.each(links, function(keys, link) {
-      console.log(link)
-      if (link.href.startsWith(document.URL)) {
-        $(link).click(function(e) {
-          e.preventDefault();
 
-          // Fetch the page content
-          $.ajax({
-            url: `/wp-content/themes/wp98/templates/page.php?id=${id}`,
-            success: content => {
-              page.html(content);
-              page.append(`<script id="wp98-page-${id}-js" type="text/javascript" src="${document.URL}wp-content/themes/wp98/assets/js/page.js""></script>`);
-            }
-          });
-        });
+  function _registerEventListeners(page) {
+    // Window movement
+    const titleBar = $(`#${page.prop('id')} .title-bar`);
+    titleBar.on('mousedown', {page: page}, _moveWindow);
+
+    // Window resizing
+    page.click((e) => {
+      if ($(e.target).hasClass('wp98-page') === true && e.button === 0) {
+        const pageOffset = $(e.target).offset();
+        const pageSize = {
+          x: e.target.clientWidth,
+          y: e.target.clientHeight
+        };
+        const mousePos = {
+          x: e.originalEvent.clientX - pageOffset.left,
+          y: e.originalEvent.clientY - pageOffset.top
+        };
+        console.log(pageSize, mousePos);
       }
-      
+    })
+
+    const minimiseBtn = $(`#${page.prop('id')} button[aria-label="Minimize"]`);
+    minimiseBtn.click(() => page.css('display', 'none'));
+    
+    const maximiseBtn = $(`#${page.prop('id')} button[aria-label="Maximize"]`);
+    maximiseBtn.click(function() { _maximiseWindow(page) });
+
+    const closeBtn = $(`#${page.prop('id')} button[aria-label="Close"]`);
+    closeBtn.click((e) => {
+      const idArr = $(e.target).closest('.wp98-page').prop('id').split('-');
+      const id = idArr[idArr.length - 1];
+      _removePage(id);
     });
-      
-    
-    
-    
-    
-    /* AJAX
-    .on('click', '.some-element', function(e){
-      var ipc = jQuery(this).data('collection-id');
-      jQuery('.some-other-element').show();
-    
-      jQuery.ajax({
-          method: 'post',
-          url: ipAjaxVar.ajaxurl,
-          data: {
-              collection_id: ipc,
-              action: 'my_function',
-          }
-      }).done(function(msg) {
-          // Do something when done
+  }
+
+  function _maximiseWindow(page) {
+    if (isWindowMaximised === true) {
+      page.css({
+        width: minimisedSize.width,
+        height: minimisedSize.height,
+        top: minimisedSize.top,
+        left: minimisedSize.left
       });
-    
+      
+      isWindowMaximised = false;
+    }
+    else {
+      minimisedSize = {
+        width: page.css('width'),
+        height: page.css('height'),
+        top: page.css('top'),
+        left: page.css('left')
+      };
+
+      page.css({
+        width: `${window.innerWidth}px`,
+        height: `${window.innerHeight - $('#wp98-taskbar').height() - ($('#wpadminbar').length !== 0 ? $('#wpadminbar').height() : 0)}px`,
+        top: $('#wpadminbar').length !== 0 ? $('#wpadminbar').height() : 0,
+        left: 0
+      });
+
+      isWindowMaximised = true;
+    }
+  }
+
+  function _moveWindow(e) {
+    if ($(e.target).hasClass('title-bar') === true && e.type === 'mousedown' && e.button === 0) {
       e.preventDefault();
-    });
-    */
+      isWindowBeingMoved = true;
+      mousePos = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
+      windowOffset = { x: $(e.data.page).offset().left - mousePos.x, y: $(e.data.page).offset().top - mousePos.y };
+      pageBeingMoved = e.data.page;
+    }
+    else if (e.type === 'mousemove' && isWindowBeingMoved === true) {
+      $(pageBeingMoved).css('left', `${e.originalEvent.clientX + windowOffset.x}px`);
+      $(pageBeingMoved).css('top', `${e.originalEvent.clientY + windowOffset.y}px`);
+    }
+  }
+  
+  return {
+    addPage: (id) => addPage(id)
+  };
 })(jQuery);

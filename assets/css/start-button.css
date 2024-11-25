@@ -85,9 +85,10 @@
 body .wp98-page {
   width: 400px;
   height: 400px;
-  position: relative;
+  position: absolute;
   top: 100px;
   left: 300px;
+  box-sizing: border-box;
 }
 
 body .wp98-page .status-bar {
