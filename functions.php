@@ -131,7 +131,7 @@ function wp98_enqueue_styles() {
 function wp98_enqueue_scripts() {
   if ( is_front_page() ) {
     wp_enqueue_script( 'jquery' );
-    wp_enqueue_script( 'wp98-page-manager', get_parent_theme_file_uri( '/assets/js/page-manager.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'defer', true ) );
+    wp_enqueue_script( 'wp98', get_parent_theme_file_uri( '/assets/js/page-manager.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'defer', true ) );
   }
 }
 

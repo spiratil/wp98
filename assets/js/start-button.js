@@ -1,4 +1,4 @@
-jQuery(document).ready(function($) {
+const sb = (function($) {
   const startBtn = $('#wp98-start-button');
   const startMenu = $('#wp98-start-menu')
   const menuTitleBar = $('#wp98-start-menu .title-bar');
@@ -16,6 +16,7 @@ jQuery(document).ready(function($) {
       // Check if the click has occurred outside start menu and start button
       if ($(e.target).closest('#wp98-start-button').length === 0 && $(e.target).closest('#wp98-start-menu').length === 0)
         showHideStartMenu();
+      op.selectTab('');
     }
   });
 
@@ -41,6 +42,8 @@ jQuery(document).ready(function($) {
       // Return if this menu item has already been clicked and created a new element on the page
       if ($(`#wp98-page-${id}`).length !== 0) {
         showHideStartMenu();
+        pm.focusPage(id);
+        op.selectTab(id);
         return;
       }
       
@@ -56,6 +59,7 @@ jQuery(document).ready(function($) {
         success: content => {
           page.html(content);
           pm.addPage(id);
+          op.addTab(id);
         }
       });
 
@@ -77,4 +81,4 @@ jQuery(document).ready(function($) {
 
     isStartMenuOpen ? isStartMenuOpen = false : isStartMenuOpen = true;
   }
-});
+})(jQuery);

@@ -12,9 +12,24 @@ const pm = (function($){
   let minimisedSize;
 
   function addPage(id) {
-    pages.push($(`#wp98-page-${id}`));
+    const page = $(`#wp98-page-${id}`);
+    pages.push(page);
     _repurposeLinks(pages[pages.length - 1]);
     _registerEventListeners(pages[pages.length - 1]);
+    page.on('click', {id: id}, focusPage)    ;
+    focusPage(id);
+  }
+
+
+  function focusPage(id) {
+    if (typeof id === 'object') {
+      id = id.data.id;
+      op.selectTab(id);
+    }
+    pages.forEach(page => {
+      if (page.attr('id') === `wp98-page-${id}`) page.css('z-index', 900);
+      else page.css('z-index', 1);
+    });
   }
 
   function _removePage(id) {
@@ -22,6 +37,7 @@ const pm = (function($){
       if (page.attr('id') === `wp98-page-${id}`) {
         pages.splice(index, 1);
         page.remove();
+        op.removeTab(id);
         return;
       }
     })
@@ -147,6 +163,7 @@ const pm = (function($){
   }
   
   return {
-    addPage: (id) => addPage(id)
+    addPage: (id) => addPage(id),
+    focusPage: (id) => focusPage(id)
   };
 })(jQuery);

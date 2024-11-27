@@ -1,6 +1,6 @@
 <?php
 /** 
-* Template Name: Taskbar
+* Template Name: Start Button and Start Menu
 */ 
 
 wp_enqueue_style( 'wp98-start-button', get_theme_file_uri() . '/assets/css/start-button.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
@@ -31,7 +31,6 @@ global $wpdb, $options_table, $menu_table, $start_menu, $nav_menu;
     <?php endif; ?>
   <?php 
   wp98_insert_menu();
-  //add_filter( 'wp_nav_menu_objects', 'update_menu_link', 10, 2 );
 
   function wp98_insert_menu(){
     global $wpdb, $menu_table;
@@ -48,28 +47,5 @@ global $wpdb, $options_table, $menu_table, $start_menu, $nav_menu;
         <?php endforeach; ?>
       </ul>
     </nav>
-  <?php }
-
-/*
-  function update_menu_link($items){
-    var_dump( $items );
-  
-    //look through the menu for items with Label "Link Title"
-        foreach($items as $item){
-  
-            if($item->title === "Blog"){ // this is the link label your searching for
-                $item->url = "http://newlink.com"; //this is the new link
-            }
-        }
-        return $items;
-    }
-    wp_nav_menu( array ( 
-      'menu' => 'wp98-menu',
-      'container' => 'nav',
-      'menu_class' => 'window-body',
-      'theme_location' => 'start-menu',
-      'link_before' => '<img src="https://wordpress.ddev.site/wp-content/themes/wp98/assets/images/icons/camera3-4.png">'
-    ) );
-  */
-  ?>
+  <?php } ?>
 </div>
