@@ -36,7 +36,7 @@ const op = (function($) {
       pm.focusPage(id);
     }
     tabs.forEach(tab => {
-      if (tab.attr('id') === `wp98-tab-${id}`) tab.addClass('wp98-tab-selected')
+      if (tab.attr('id') === `wp98-tab-${id}`) tab.addClass('wp98-tab-selected');
       else tab.removeClass('wp98-tab-selected');
     });
   }

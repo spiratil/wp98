@@ -27,7 +27,10 @@ const pm = (function($){
       op.selectTab(id);
     }
     pages.forEach(page => {
-      if (page.attr('id') === `wp98-page-${id}`) page.css('z-index', 900);
+      if (page.attr('id') === `wp98-page-${id}`) {
+        page.css('z-index', 900);
+        page.css('display', 'block');
+      }
       else page.css('z-index', 1);
     });
   }
@@ -100,12 +103,11 @@ const pm = (function($){
           x: e.originalEvent.clientX - pageOffset.left,
           y: e.originalEvent.clientY - pageOffset.top
         };
-        console.log(pageSize, mousePos);
       }
     })
 
     const minimiseBtn = $(`#${page.prop('id')} button[aria-label="Minimize"]`);
-    minimiseBtn.click(() => page.css('display', 'none'));
+    minimiseBtn.click(function() { _minimiseWindow(page) });
     
     const maximiseBtn = $(`#${page.prop('id')} button[aria-label="Maximize"]`);
     maximiseBtn.click(function() { _maximiseWindow(page) });
@@ -116,6 +118,12 @@ const pm = (function($){
       const id = idArr[idArr.length - 1];
       _removePage(id);
     });
+  }
+
+  function _minimiseWindow(page) {
+    event.stopPropagation();
+    page.css('display', 'none');
+    op.selectTab('');
   }
 
   function _maximiseWindow(page) {
@@ -151,6 +159,11 @@ const pm = (function($){
   function _moveWindow(e) {
     if ($(e.target).hasClass('title-bar') === true && e.type === 'mousedown' && e.button === 0) {
       e.preventDefault();
+
+      const idArr = e.target.parentElement.id.split('-');
+      const id = idArr[idArr.length - 1];
+      focusPage(id);
+
       isWindowBeingMoved = true;
       mousePos = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
       windowOffset = { x: $(e.data.page).offset().left - mousePos.x, y: $(e.data.page).offset().top - mousePos.y };
