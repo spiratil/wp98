@@ -1,6 +1,8 @@
 // Page Manager self-executing anonymous function
 const pm = (function($){
   let pages = [];
+  let history = [];
+  let histStep = 0;
 
   // Window Movement
   let isWindowBeingMoved = false;
@@ -11,6 +13,10 @@ const pm = (function($){
   let isWindowMaximised = false;
   let minimisedSize;
 
+  function addHistory(id, link) {
+
+  }
+
   function addPage(id) {
     const page = $(`#wp98-page-${id}`);
     pages.push(page);
@@ -19,7 +25,6 @@ const pm = (function($){
     page.on('click', {id: id}, focusPage)    ;
     focusPage(id);
   }
-
 
   function focusPage(id) {
     if (typeof id === 'object') {
@@ -118,6 +123,9 @@ const pm = (function($){
       const id = idArr[idArr.length - 1];
       _removePage(id);
     });
+
+    const navBackBtn = $(`#${page.prop('id')} .navigation-back`);
+    navBackBtn.on('click', _backHistory);
   }
 
   function _minimiseWindow(page) {
@@ -174,8 +182,13 @@ const pm = (function($){
       $(pageBeingMoved).css('top', `${e.originalEvent.clientY + windowOffset.y}px`);
     }
   }
+
+  function _backHistory() {
+
+  }
   
   return {
+    addHistory: (id, link) => addHistory(id, link),
     addPage: (id) => addPage(id),
     focusPage: (id) => focusPage(id)
   };

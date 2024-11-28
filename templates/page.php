@@ -23,6 +23,23 @@
         <button aria-label="Close"></button>
       </div>
     </div>
+    <div class="navigation-bar">
+      <button class="page-navigation navigation-back navigation-disabled">
+        <img src="<?php echo get_stylesheet_directory_uri() . '/assets/images/navigation/back-greyscale.png' ?>" alt="Back">
+      </button>
+      <button class="page-navigation navigation-forward navigation-disabled">
+        <img src="<?php echo get_stylesheet_directory_uri() . '/assets/images/navigation/forward-greyscale.png' ?>" alt="Forward">
+      </button>
+      <button class="page-navigation navigation-cancel navigation-disabled">
+        <img src="<?php echo get_stylesheet_directory_uri() . '/assets/images/navigation/cancel-greyscale.png' ?>" alt="Stop">
+      </button>
+      <button class="page-navigation navigation-refresh">
+        <img src="<?php echo get_stylesheet_directory_uri() . '/assets/images/navigation/refresh.png' ?>" alt="Refresh">
+      </button>
+      <button class="page-navigation navigation-home">
+        <img src="<?php echo get_stylesheet_directory_uri() . '/assets/images/navigation/home.png' ?>" alt="Home">
+      </button>
+    </div>
     <div class="window-body wp98-content">
   <?php endif;
 

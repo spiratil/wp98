@@ -126,6 +126,7 @@ function wp98_enqueue_styles() {
   wp_enqueue_style( 'wp98-fonts', get_theme_file_uri() . '/assets/css/fonts.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
   wp_enqueue_style( 'wp98-variables', get_theme_file_uri() . '/assets/css/variables.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
   wp_enqueue_style( 'wp98', get_theme_file_uri() . '/assets/css/98.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
+  wp_enqueue_style( 'wp98-page', get_theme_file_uri() . '/assets/css/page.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
 }
 
 function wp98_enqueue_scripts() {

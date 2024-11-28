@@ -1,0 +1,28 @@
+.wp98-page .navigation-bar {
+  margin: 2px;
+}
+
+.wp98-page .navigation-bar button {
+  min-width: unset;
+  padding: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: unset;
+}
+
+.wp98-page .navigation-bar button:hover {
+  box-shadow: var(--wp98--border--raised-inner), var(--wp98--border--sunken-outer);
+}
+
+.wp98-page .navigation-bar button:active {
+  box-shadow: var(--wp98--border--sunken-inner), var(--wp98--border--sunken-outer);
+}
+
+.wp98-page .navigation-bar button.navigation-disabled {
+  box-shadow: unset;
+}
+
+.wp98-page .navigation-bar img {
+  padding: 5px;
+}
