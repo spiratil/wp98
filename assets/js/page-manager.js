@@ -1,13 +1,11 @@
 // Page Manager self-executing anonymous function
 const pm = (function($){
-  let pages = [];
-  let history = [];
-  let histStep = 0;
+  let pages = {};
 
   // Window Movement
-  let isWindowBeingMoved = false;
-  let windowOffset, mousePos;
-  let pageBeingMoved;
+  let isWindowBeingMoved = false, isWindowBeingResized = false;
+  let windowOffset, windowSize, mousePos;
+  let pageBeingManipulated;
 
   // Window Maximise
   let isWindowMaximised = false;
@@ -19,9 +17,13 @@ const pm = (function($){
 
   function addPage(id) {
     const page = $(`#wp98-page-${id}`);
-    pages.push(page);
-    _repurposeLinks(pages[pages.length - 1]);
-    _registerEventListeners(pages[pages.length - 1]);
+    pages[id] = {
+      page: page,
+      history: [],
+      histStep: 0
+    };
+    _repurposeLinks(id);
+    _registerEventListeners(id);
     page.on('click', {id: id}, focusPage)    ;
     focusPage(id);
   }
@@ -31,31 +33,31 @@ const pm = (function($){
       id = id.data.id;
       op.selectTab(id);
     }
-    pages.forEach(page => {
-      if (page.attr('id') === `wp98-page-${id}`) {
-        page.css('z-index', 900);
-        page.css('display', 'block');
+    for (const key in pages) {
+      if (key === id) {
+        pages[key].page.css('z-index', 900);
+        pages[key].page.css('display', 'flex');
       }
-      else page.css('z-index', 1);
-    });
+      else pages[key].page.css('z-index', 1);
+    }
   }
 
   function _removePage(id) {
-    pages.forEach((page, index, pages) => {
-      if (page.attr('id') === `wp98-page-${id}`) {
-        pages.splice(index, 1);
-        page.remove();
+    for (const [key, page] of Object.entries(pages)) {
+      if (key === id) {
+        pages[id].page.remove();
         op.removeTab(id);
+        delete pages[key];
         return;
       }
-    })
+    }
   }
 
   // Prevent <a> links with hrefs to the site domain from activating and instead load
   // the content of the requested page within the container on the homepage
-  function _repurposeLinks(page) {
+  function _repurposeLinks(id) {
     // Fetch and assign an event listener to every <a> link on the page
-    const links = $(`#${page.attr('id')} a`);
+    const links = $(`#${pages[id].page.attr('id')} a`);
 
     // Add a click event listener to each required link
     links.each(function() {
@@ -63,7 +65,7 @@ const pm = (function($){
         $(this).click(function(e) {
           e.preventDefault();
 
-          _loadPageContent(page, $(this).data('type'), $(this).data('id'));
+          _loadPageContent(pages[id].page, $(this).data('type'), $(this).data('id'));
         });
       }
     });
@@ -84,59 +86,53 @@ const pm = (function($){
   }
 
   $(document).on({
-    // Deregister page windows from being moved when the mouse button is lifted
-    mouseup: () => { isWindowBeingMoved = false; },
+    // Deregister page windows from being moved/resized when the mouse button is lifted
+    mouseup: () => {
+      isWindowBeingMoved = false;
+      isWindowBeingResized = false;
+    },
     // Track window movement to keep movement consistent when mouse is moved off element being moved
-    mousemove: _moveWindow,
+    mousemove: (e) => {
+      if (isWindowBeingMoved) _moveWindow(e);
+      else if (isWindowBeingResized) _resizeWindow(e);
+    }
   });
 
 
-  function _registerEventListeners(page) {
+  function _registerEventListeners(id) {
     // Window movement
-    const titleBar = $(`#${page.prop('id')} .title-bar`);
-    titleBar.on('mousedown', {page: page}, _moveWindow);
+    const titleBar = $(`#${pages[id].page.prop('id')} .title-bar`);
+    titleBar.on('mousedown', {page: pages[id].page}, _moveWindow);
 
     // Window resizing
-    page.click((e) => {
-      if ($(e.target).hasClass('wp98-page') === true && e.button === 0) {
-        const pageOffset = $(e.target).offset();
-        const pageSize = {
-          x: e.target.clientWidth,
-          y: e.target.clientHeight
-        };
-        const mousePos = {
-          x: e.originalEvent.clientX - pageOffset.left,
-          y: e.originalEvent.clientY - pageOffset.top
-        };
-      }
-    })
+    $(`#corner-grabber-${id}`).on('mousedown', _resizeWindow);
 
-    const minimiseBtn = $(`#${page.prop('id')} button[aria-label="Minimize"]`);
-    minimiseBtn.click(function() { _minimiseWindow(page) });
+    const minimiseBtn = $(`#${pages[id].page.prop('id')} button[aria-label="Minimize"]`);
+    minimiseBtn.click(function() { _minimiseWindow(id) });
     
-    const maximiseBtn = $(`#${page.prop('id')} button[aria-label="Maximize"]`);
-    maximiseBtn.click(function() { _maximiseWindow(page) });
+    const maximiseBtn = $(`#${pages[id].page.prop('id')} button[aria-label="Maximize"]`);
+    maximiseBtn.click(function() { _maximiseWindow(id) });
 
-    const closeBtn = $(`#${page.prop('id')} button[aria-label="Close"]`);
+    const closeBtn = $(`#${pages[id].page.prop('id')} button[aria-label="Close"]`);
     closeBtn.click((e) => {
       const idArr = $(e.target).closest('.wp98-page').prop('id').split('-');
       const id = idArr[idArr.length - 1];
       _removePage(id);
     });
 
-    const navBackBtn = $(`#${page.prop('id')} .navigation-back`);
-    navBackBtn.on('click', _backHistory);
+    const navBackBtn = $(`#${pages[id].page.prop('id')} .navigation-back`);
+    navBackBtn.on('mousedown', _backHistory);
   }
 
-  function _minimiseWindow(page) {
+  function _minimiseWindow(id) {
     event.stopPropagation();
-    page.css('display', 'none');
+    pages[id].page.css('display', 'none');
     op.selectTab('');
   }
 
-  function _maximiseWindow(page) {
+  function _maximiseWindow(id) {
     if (isWindowMaximised === true) {
-      page.css({
+      pages[id].page.css({
         width: minimisedSize.width,
         height: minimisedSize.height,
         top: minimisedSize.top,
@@ -147,13 +143,13 @@ const pm = (function($){
     }
     else {
       minimisedSize = {
-        width: page.css('width'),
-        height: page.css('height'),
-        top: page.css('top'),
-        left: page.css('left')
+        width: pages[id].page.css('width'),
+        height: pages[id].page.css('height'),
+        top: pages[id].page.css('top'),
+        left: pages[id].page.css('left')
       };
 
-      page.css({
+      pages[id].page.css({
         width: `${window.innerWidth}px`,
         height: `${window.innerHeight - $('#wp98-taskbar').height() - ($('#wpadminbar').length !== 0 ? $('#wpadminbar').height() : 0)}px`,
         top: $('#wpadminbar').length !== 0 ? $('#wpadminbar').height() : 0,
@@ -168,18 +164,36 @@ const pm = (function($){
     if ($(e.target).hasClass('title-bar') === true && e.type === 'mousedown' && e.button === 0) {
       e.preventDefault();
 
-      const idArr = e.target.parentElement.id.split('-');
-      const id = idArr[idArr.length - 1];
+      const id = $(e.target).data('id');
       focusPage(id);
 
       isWindowBeingMoved = true;
       mousePos = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
       windowOffset = { x: $(e.data.page).offset().left - mousePos.x, y: $(e.data.page).offset().top - mousePos.y };
-      pageBeingMoved = e.data.page;
+      pageBeingManipulated = pages[id].page;
     }
     else if (e.type === 'mousemove' && isWindowBeingMoved === true) {
-      $(pageBeingMoved).css('left', `${e.originalEvent.clientX + windowOffset.x}px`);
-      $(pageBeingMoved).css('top', `${e.originalEvent.clientY + windowOffset.y}px`);
+      $(pageBeingManipulated).css('left', `${e.originalEvent.clientX + windowOffset.x}px`);
+      $(pageBeingManipulated).css('top', `${e.originalEvent.clientY + windowOffset.y}px`);
+    }
+  }
+
+  function _resizeWindow(e) {
+    if ($(e.target).hasClass('corner-grabber') === true && e.type === 'mousedown' && e.button === 0) {
+      e.preventDefault();
+
+      const id = $(e.target).data('id');
+      focusPage(id);
+
+      isWindowBeingResized = true;
+      pageBeingManipulated = pages[id].page;
+      mousePos = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
+      windowSize = { width: pageBeingManipulated.width(), height: pageBeingManipulated.height()}
+    }
+    else if (e.type === 'mousemove' && isWindowBeingResized === true) {
+      const mouseOffset = { x: e.originalEvent.clientX - mousePos.x, y: e.originalEvent.clientY - mousePos.y }
+      pageBeingManipulated.width(windowSize.width + mouseOffset.x);
+      pageBeingManipulated.height(windowSize.height + mouseOffset.y);
     }
   }
 
