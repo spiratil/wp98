@@ -53,6 +53,10 @@
   box-shadow: var(--wp98--border--sunken-inner), var(--wp98--border--sunken-outer);
 }
 
+.wp98-page .navigation-bar button:focus {
+  outline: none;
+}
+
 .wp98-page .navigation-bar button.navigation-disabled {
   box-shadow: unset;
 }
@@ -83,6 +87,7 @@
 }
 
 .wp98-page .wp98-content {
+  flex: 1;
   appearance: none;
   background-color: #fff;
   border-radius: 0;
@@ -106,7 +111,7 @@
   margin: 1px 1px;
 }
 
-.wp98-page .status-bar #url-display,
+.wp98-page .status-bar .url-display,
 .wp98-page .status-bar .status-bar-field:last-child,
 .wp98-page .navigation-bar .address-bar {
   display: flex;
@@ -115,7 +120,7 @@
   gap: 5px;
 }
 
-.wp98-page .status-bar #url-display {
+.wp98-page .status-bar .url-display {
   flex: 25;
 }
 
@@ -139,4 +144,49 @@
 
 .wp98-page .status-bar .corner-grabber:hover {
   cursor: nw-resize;
+}
+
+.wp98-error-window {
+  width: 300px;
+}
+
+.wp98-error-window .window-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.wp98-error-window .flex-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.wp98-error-window .window-body .error-icon {
+  margin: 12px;
+}
+
+.wp98-error-window .window-body p {
+  margin-top: 12px;
+  flex: 1;
+  align-self: flex-start;
+}
+
+.wp98-error-window .window-body button {
+  color: var(--wp98--color--text-color);
+  margin: 7px;
+}
+
+.full-screen-wrapper {
+  background: #10101070;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100vw;
+  min-height: 100vh;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

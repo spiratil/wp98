@@ -20,7 +20,7 @@ const sb = (function($) {
     }
   });
 
-  // Mouse item hover enter
+  // Mouse item hover on menu items
   $('#wp98-start-menu .nav-list').on({
     mouseover: function(e) {
       const el = e.target;
@@ -50,7 +50,8 @@ const sb = (function($) {
       // Create the page container
       const page = $('<div/>',{
         id: `wp98-page-${id}`,
-        class: 'wp98-page window'
+        class: 'wp98-page window',
+        'data-id': id
       }).appendTo('body');
 
       // Fetch the page content
@@ -58,7 +59,7 @@ const sb = (function($) {
         url: `/wp-content/themes/wp98/templates/page.php?id=${id}&buildpage=1`,
         success: content => {
           page.html(content);
-          pm.addPage(id);
+          pm.addPage(id, 'page');
           op.addTab(id);
         }
       });

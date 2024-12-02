@@ -59,7 +59,7 @@
   if ( $build_page === true ) : ?>
     </div>
     <div class="status-bar">
-      <div id="url-display" class="status-bar-field">
+      <div id="url-display-<?php echo $id; ?>" class="status-bar-field url-display">
         <img src="">
         <span></span>
       </div>
