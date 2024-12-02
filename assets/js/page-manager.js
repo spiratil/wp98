@@ -21,12 +21,6 @@ const pm = (function($){
     mousemove: (e) => {
       if (isWindowBeingMoved) _moveWindow(e);
       else if (isWindowBeingResized) _resizeWindow(e);
-    },
-    ajaxError: function(e, xhr, options, exc) { 
-      _loadPageError(xhr.status);
-      // Remove the added history for the page that couldn't be loaded
-      const id = $(e.target.activeElement).closest('.wp98-page').data('id');
-      pages[id].history.toSpliced(0, 1);
     }
   });
 
@@ -87,6 +81,24 @@ const pm = (function($){
     console.log(pages[winId].histStep, pages[winId].history)
   }
 
+  function loadPageError(status, message) {
+    $.ajax({
+      url: `/wp-content/themes/wp98/templates/404-page.php?status=${status}&message=${message}`,
+      success: content => {
+        $('body').append(content);
+
+        // Prevent the user from interacting with the page until the error message is closed
+        const pageWrapper = $('.wp98-error-window');
+        pageWrapper.click((e) => {
+          e.preventDefault();
+        })
+        
+        const closeBtn = $('.wp98-error-window .close-button');
+        closeBtn.click(() => { $('.wp98-error-window').remove(); });
+      }
+    });
+  }
+
   // Prevent <a> links with hrefs to the site domain from activating and instead load
   // the content of the requested page within the container on the homepage
   function _repurposeLinks(id) {
@@ -122,34 +134,31 @@ const pm = (function($){
   // Loads the requested page content inside the page container
   function _loadPageContent(winId, type, pageId, isHistory = false) {
     $.ajax({
-      url: `/wp-content/themes/wp98/templates/${type}.php?id=${pageId}`,
+      url: '/wp-admin/admin-ajax.php',
+      type: 'POST',
+      data:`action=load_page&id=${pageId}`,
       success: content => {
-        pages[winId].content.html(content);
-        _repurposeLinks(winId);
+        if (content == '404') {
+          loadPageError(404, 'The requested page was not found.');
+          // Remove the added history for the page that couldn't be loaded
+          pages[winId].history.toSpliced(0, 1);
+        }
+        else if (content == 'err') {
+          loadPageError('ERROR', 'Sorry! Something went wrong and that page is unavailable.');
+          // Remove the added history for the page that couldn't be loaded
+          pages[winId].history.toSpliced(0, 1);
+        }
+        else {
+          pages[winId].content.html(content);
+          _repurposeLinks(winId);
+          // Update the address bar URL
+          $(`#wp98-page-${winId} .address-bar span`).text($(content).first().data('url'));
+        }
       },
     });
 
     if (isHistory === false) _addHistory(winId, type, pageId);
   }
-
-  function _loadPageError(status) {
-    $.ajax({
-      url: `/wp-content/themes/wp98/templates/404.php?status=${status}`,
-      success: content => {
-        $('body').append(content);
-
-        // Prevent the user from interacting with the page until the error message is closed
-        const pageWrapper = $('.wp98-error-window');
-        pageWrapper.click((e) => {
-          e.preventDefault();
-        })
-        
-        const closeBtn = $('.wp98-error-window .close-button');
-        closeBtn.click(() => { $('.wp98-error-window').remove(); });
-      }
-    });
-  }
-
 
   function _registerEventListeners(id) {
     // Window movement
@@ -327,6 +336,7 @@ const pm = (function($){
   
   return {
     addPage: (id, type) => addPage(id, type),
-    focusPage: (id) => focusPage(id)
+    focusPage: (id) => focusPage(id),
+    loadPageError: (status, message) => loadPageError(status, message)
   };
 })(jQuery);

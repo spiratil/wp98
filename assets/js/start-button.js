@@ -56,7 +56,7 @@ const sb = (function($) {
 
       // Fetch the page content
       $.ajax({
-        url: `/wp-content/themes/wp98/templates/page.php?id=${id}&buildpage=1`,
+        url: `/wp-content/themes/wp98/templates/window.php?id=${id}`,
         success: content => {
           page.html(content);
           pm.addPage(id, 'page');

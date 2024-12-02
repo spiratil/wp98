@@ -1,8 +1,8 @@
 <?php 
   require_once("../../../../wp-load.php");
   $status = absint( $_GET[ "status" ] );
-  echo 'Warty Warthogs';
-
+  $message = sanitize_text_field( $_GET[ "message" ] );
+  
   // Check if the request was an AJAX request
   if(strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest') : ?>
     <div class="wp98-error-window full-screen-wrapper">
@@ -15,7 +15,7 @@
         </div>
         <div class="window-body">
           <img class="error-icon" src="<?php echo get_stylesheet_directory_uri() . '/assets/images/icons/msg_error-0.png'; ?>">
-          <p><?php if ( (int)$status === 404 ) echo 'The requested page was not found.'; ?></p>
+          <p><?php if ( (int)$status === 404 ) echo $message; ?></p>
           <div class="flex-break"></div>
           <section class="field-row">
             <button class="close-button">OK</button>
@@ -25,13 +25,4 @@
     </div>
   
   
-  <?php else :
-  //Build the page if not requested with AJAX
-    get_template_part( './templates/taskbar' );
-  endif; ?>
-
-  <div>THIS IS A TEST</div>
-
-
-  
-
+  <?php endif;

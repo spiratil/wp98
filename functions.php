@@ -17,6 +17,9 @@ add_action( 'wp_enqueue_scripts', 'wp98_setup_files' );
 add_action( 'admin_menu', 'wp98_add_custom_admin_menu' );
 add_action( 'after_switch_theme', 'wp98_theme_initialisation' );
 add_action( 'admin_enqueue_scripts', 'wp98_add_custom_disabled_fields_js' );
+add_action('wp_ajax_load_page', 'ajax_action_callback_load_page');
+add_action('wp_ajax_nopriv_load_page', 'ajax_action_callback_load_page');
+
 
 function wp98_add_custom_disabled_fields_js() {
     if ( 'options-reading' == get_current_screen()->id && ! current_user_can( 'manage_network_options' ) ) {
@@ -130,10 +133,8 @@ function wp98_enqueue_styles() {
 }
 
 function wp98_enqueue_scripts() {
-  if ( is_front_page() ) {
-    wp_enqueue_script( 'jquery' );
-    wp_enqueue_script( 'wp98', get_parent_theme_file_uri( '/assets/js/page-manager.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'defer', true ) );
-  }
+  wp_enqueue_script( 'jquery' );
+  wp_enqueue_script( 'wp98', get_parent_theme_file_uri( '/assets/js/page-manager.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'defer', true ) );
 }
 
 function wp98_add_custom_admin_menu() {
@@ -149,7 +150,7 @@ function wp98_option_page() {
   // Must check that the user has the required capability 
   if ( !current_user_can( 'manage_options' ) ) wp_die( __('You do not have sufficient permissions to access this page.') );
 
-	get_template_part( './templates/wp98-options-page' );
+	get_template_part( './templates/options-page' );
 }
 
 function wp98_setup_admin( $hook ) {
@@ -164,3 +165,19 @@ function wp98_setup_admin( $hook ) {
   }
 }
 
+// Handler for determining what content to load within the page windows on AJAX requests
+function ajax_action_callback_load_page() {
+  if ( isset( $_POST['id'] ) ) {
+    $id = absint( $_POST['id'] );
+    $type = get_post_type( $id );
+
+    // Check if the post exists
+    if ( get_post_status( $id ) === 'publish' ) {
+      // Build the page content
+      if ( $type = 'page' ) get_template_part( './templates/page', null, array( 'id' => $id ) );
+    }
+    else echo '404';
+  }
+  else echo 'err';
+  die();
+}
