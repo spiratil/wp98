@@ -4,23 +4,30 @@ jQuery(document).ready(function($) {
     uploadUrl: '/'
   });
 
-  const menuRows = $('.start-menu-row');
+  // Menu rows and items manager
+  const menuRows = $('.menu-row');
   $.each(menuRows, function(keys, row) {
     // Hidden input elements
     const actionInputEl = $(row.children[0]);
     const orderInputEl = $(row.children[1]);
-    const pageInputEl = $(row.children[2]);
+    const pageIdInputEl = $(row.children[2]);
     const iconInputEl = $(row.children[3]);
+    const pageNameInputEl = $(row.children[4]);
+    const headerInputEl = $(row.children[5]);
+    const footerInputEl = $(row.children[6]);
 
     // Icon elements
-    const noImgEl = $(row.children[5].children[0]);
-    const imgEl = $(row.children[5].children[1]);
+    const dragEl = $(row.children[7]);
+    const noImgEl = $(row.children[8].children[0]);
+    const imgEl = $(row.children[8].children[1]);
     const originalImgUrl = iconInputEl.val() !== '' ?
       iconInputEl.val() :
       '';
     
     // Page drop down elements
-    const pageSelEl = $(row.children[6].children[0]);
+    const pageSelEl = $(row.children[9].children[0]);
+    const headerSelEl = $(row.children[10].children[0]);
+    const footerSelEl = $(row.children[11].children[0]);
     const originalPageId = pageSelEl.val();
     const originalRow = Array.from(row.parentNode.children).indexOf(row);
   
@@ -31,7 +38,7 @@ jQuery(document).ready(function($) {
 
     // Add event listeners if the row already contains a selected icon
     if (imgEl[0].nextElementSibling.type === undefined) {
-      btnsCon = $(row.children[5].children[2]);
+      btnsCon = $(row.children[8].children[2]);
       
       changeBtn = $(btnsCon[0].children[0]);
       removeBtn = $(btnsCon[0].children[1]);
@@ -42,7 +49,7 @@ jQuery(document).ready(function($) {
     }
     // Add event listeners if the row doesn't contain a selected icon
     else {
-      chooseBtn = $(row.children[5].children[2]);
+      chooseBtn = $(row.children[8].children[2]);
 
       addChooseIconEventListener(chooseBtn);
     }
@@ -78,7 +85,7 @@ jQuery(document).ready(function($) {
         chooseBtn = $('<button/>', {
           type: 'button',
           class: 'mediamanager-btn add-button button button-secondary'
-        }).html('Choose<br>Icon').appendTo(row.children[5]);
+        }).html('Choose<br>Icon').appendTo(row.children[8]);
         
         addChooseIconEventListener(chooseBtn);
 
@@ -101,8 +108,8 @@ jQuery(document).ready(function($) {
           // Remove the old buttons and add a "choose" button
           chooseBtn.remove();
 
-          btnsCon = $('<div/>', { class: 'start-menu-btn-flex-container'})
-            .appendTo(row.children[5]);
+          btnsCon = $('<div/>', { class: 'menu-btn-flex-container'})
+            .appendTo(row.children[8]);
           
           changeBtn = $('<button/>', {
             type: 'button',
@@ -123,23 +130,42 @@ jQuery(document).ready(function($) {
 
     // Update the values to be returned to the php page when the form is submitted
     function updateInputValueState() {
-      if (pageSelEl.val() === 'choose') {
+      if (pageSelEl.val() === 'none') {
         actionInputEl.val('delete');
-        pageInputEl.val(originalPageId);
+        pageIdInputEl.val(originalPageId);
+        pageNameInputEl.val('');
+        headerInputEl.val('');
+        footerInputEl.val('');
       }
       else if (pageSelEl.val() === originalPageId && iconInputEl.val() === originalImgUrl) {
         actionInputEl.val('no-change');
-        pageInputEl.val(originalPageId);
+        pageIdInputEl.val(originalPageId);
+        pageNameInputEl.val(pageSelEl[0][pageSelEl[0].selectedIndex].text);
+        headerInputEl.val(headerSelEl.val());
+        footerInputEl.val(footerSelEl.val());
       }
       else {
         actionInputEl.val('update');
-        pageInputEl.val(pageSelEl.val());
+        pageIdInputEl.val(pageSelEl.val());
+        pageNameInputEl.val(pageSelEl[0][pageSelEl[0].selectedIndex].text);
+        headerInputEl.val(headerSelEl.val());
+        footerInputEl.val(footerSelEl.val());
       }
 
       // Row number in the table
       const rowNo = Array.from(row.parentNode.children).indexOf(row);
-      orderInputEl.val(rowNo);
+      orderInputEl.val(rowNo - 1);
     }
+  });
+
+  const checkboxes = $('input[type="checkbox"]');
+  $.each(checkboxes, function(keys, checkbox) {
+    const stateInputEl = $(checkbox).prev();
+    
+    $(checkbox).change(() => {
+      if (checkbox.checked) stateInputEl.val(1);
+      else stateInputEl.val(0);
+    })
   });
 });
 
@@ -147,11 +173,11 @@ jQuery(document).ready(function($) {
 document.addEventListener('DOMContentLoaded', () => {
   
 
-  const menuRows = document.querySelectorAll('.start-menu-row')
+  const menuRows = document.querySelectorAll('.menu-row')
   for (const [i, row] of menuRows.entries()) {
     // Page drop down elements
     const pageSelEl = row.children[4].children[1];
-    const pageInputEl = row.children[4].children[0];
+    const pageIdInputEl = row.children[4].children[0];
     const actionInputEl = row.children[0];
     const orderInputEl = row.children[1];
     const originalPageId = pageSelEl.value;
@@ -251,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
           addRemoveIconEventListener(removeBtn);
 
           btnsCon = document.createElement('div');
-          btnsCon.classList.add('start-menu-btn-flex-container');
+          btnsCon.classList.add('menu-btn-flex-container');
           btnsCon.append(changeBtn, removeBtn);
           row.children[3].appendChild(btnsCon);
 
@@ -264,15 +290,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateInputValueState() {
       if (pageSelEl.value === 'choose') {
         actionInputEl.value = 'delete';
-        pageInputEl.value = originalPageId;
+        pageIdInputEl.value = originalPageId;
       }
       else if (pageSelEl.value === originalPageId && iconInputEl.value === originalImgUrl) {
         actionInputEl.value = 'no-change';
-        pageInputEl.value = originalPageId;
+        pageIdInputEl.value = originalPageId;
       }
       else {
         actionInputEl.value = 'update';
-        pageInputEl.value = pageSelEl.value;
+        pageIdInputEl.value = pageSelEl.value;
       }
 
       // Row number in the table

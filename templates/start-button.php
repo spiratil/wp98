@@ -14,7 +14,7 @@ global $wpdb, $options_table, $menu_table, $start_menu, $nav_menu;
     
 <div id="wp98-start-menu" class="window">
   <?php 
-    if ( intval( $wpdb->get_var( "SELECT val FROM $options_table WHERE name='show-title-bar'" ) ) === 1 ) : ?>
+    if ( intval( $wpdb->get_var( "SELECT val FROM $options_table WHERE name='start-button'" ) ) === 1 ) : ?>
       <div class="title-bar">
         <div class="title-bar-text">
           <?php

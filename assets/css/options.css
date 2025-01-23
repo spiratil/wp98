@@ -1,8 +1,15 @@
-#wp98_nav_menu_options td {
+#wp98_menu_options th {
+  width: unset;
+  text-align: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+#wp98_menu_options td {
   padding: 7px 5px;
 }
 
-#wp98_nav_menu_options .start-menu-icon-col {
+#wp98_menu_options .menu-icon-col {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -10,7 +17,12 @@
   margin: 0;
 }
 
-#wp98_nav_menu_options .start-menu-btn-flex-container {
+#wp98_menu_options .menu-delete-icon img {
+  width: 25px;
+  vertical-align: middle;
+}
+
+#wp98_menu_options .menu-btn-flex-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -18,19 +30,18 @@
   gap: 5px;
 }
 
-#wp98_nav_menu_options .start-menu-btn-flex-container button {
+#wp98_menu_options .menu-btn-flex-container button {
   min-height: unset;
   line-height: unset;
 }
 
-#wp98_nav_menu_options .add-button {
+#wp98_menu_options .add-button {
   line-height: unset;
   padding-top: 5px;
   padding-bottom: 5px;
 }
 
-
-#wp98_nav_menu_options .start-menu-no-icon:not(.start-menu-no-icon-hide) {
+#wp98_menu_options .menu-no-icon:not(.menu-no-icon-hide) {
   display: inline-flex;
   align-items: center;
   text-align: center;
@@ -40,7 +51,18 @@
   justify-content: center;
 }
 
-#wp98_nav_menu_options img:not(img[src=""]) {
+#wp98_menu_options .menu-icon-col img:not(img[src=""]) {
   width: 48px;
   height: 48px;
 }
+
+#wp98-custom-styling .styles-textarea {
+  display: none;
+  width: 100%;
+  height: 300px;
+}
+
+#wp98-custom-styling #wp98-general-styles {
+  display: block;
+}
+

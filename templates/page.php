@@ -1,4 +1,9 @@
 <?php
+  /**
+   * The template for displaying pages within the window in WP 98
+   *
+   */
+
   require_once( "../wp-load.php" );
 
   $id = $args['id'];

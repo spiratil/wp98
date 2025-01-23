@@ -19,6 +19,9 @@ add_action( 'after_switch_theme', 'wp98_theme_initialisation' );
 add_action( 'admin_enqueue_scripts', 'wp98_add_custom_disabled_fields_js' );
 add_action('wp_ajax_load_page', 'ajax_action_callback_load_page');
 add_action('wp_ajax_nopriv_load_page', 'ajax_action_callback_load_page');
+// Tag and category hooks
+add_action('init', 'tags_categories_support_all');
+add_action('pre_get_posts', 'tags_categories_support_query');
 
 
 function wp98_add_custom_disabled_fields_js() {
@@ -77,7 +80,7 @@ function wp98_create_theme_database_table() {
     $sql = "CREATE TABLE $options_table  (
       id mediumint(9) NOT NULL AUTO_INCREMENT,
       `name` varchar(32) NOT NULL,
-      cat varchar(10) NOT NULL,
+      cat varchar(12) NOT NULL,
       lbl varchar(32),
       `desc` text,
       val text,
@@ -93,11 +96,13 @@ function wp98_create_theme_database_table() {
   if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $wpdb->esc_like( $menu_table ) ) ) !== $menu_table  ) {
     error_log( "Creating $menu_table" . ': ' . print_r( $options_table , true ) );
     $sql = "CREATE TABLE $menu_table  (
-      id mediumint(9) NOT NULL,
       ord mediumint(9) NOT NULL,
+      id mediumint(9) NOT NULL,
       lbl varchar(255) NOT NULL,
       img varchar(2048),
-      PRIMARY KEY (id)
+      head varchar(2048),
+      foot varchar(2048),
+      PRIMARY KEY (ord)
     ) $charset_collate;";
   
     dbDelta( $sql );
@@ -107,12 +112,15 @@ function wp98_create_theme_database_table() {
 // Create the schema and default options for database tables
 function wp98_fill_empty_database_options_table( $wpdb, $table ) {
   $wpdb->query("INSERT INTO $table
-                (`name`, cat, lbl, `desc`, val)
-                VALUES
-                ('show-title-bar', 'start-menu', 'Title Bar', NULL, 1),
-                ('show-site-logo', 'start-menu', 'Logo', NULL, 1),
-                ('show-site-title', 'start-menu', 'Site Title', NULL, 1)
-              ");
+    (`name`, cat, lbl, `desc`, val)
+    VALUES
+    ('colour-main', 'general', 'Main Colour', 'The main colour for windows/menus.', '000080'),
+    ('colour-second', 'general', 'Second Colour', 'The second colour used mostly in gradients', '1084d0'),
+    ('colour-desktop', 'general', 'Desktop Colour', 'The colour of the desktop.', '008080'),
+    ('start-button', 'taskbar', 'Start Menu', 'Allow the user to click on the Start Button and access the Start Menu.', '1'),
+    ('open-windows', 'taskbar', 'Open Programs', 'Show open windows as tabs in the Taskbar.', 1),
+    ('copyright', 'taskbar', 'System Tray', 'Show a copyright in the System Tray.', 1)
+  ");
   /*
   $entry =  array( 'name' => 'show-site-logo', 'cat' => 'start-menu', 'lbl' => 'Show Logo in Start Menu', 'val' => 1 );
 
@@ -128,6 +136,7 @@ function wp98_setup_files() {
 function wp98_enqueue_styles() {
   wp_enqueue_style( 'wp98-fonts', get_theme_file_uri() . '/assets/css/fonts.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
   wp_enqueue_style( 'wp98-variables', get_theme_file_uri() . '/assets/css/variables.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
+  wp_enqueue_style( 'wp98-settings', get_theme_file_uri() . '/assets/css/settings.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
   wp_enqueue_style( 'wp98', get_theme_file_uri() . '/assets/css/98.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
   wp_enqueue_style( 'wp98-page', get_theme_file_uri() . '/assets/css/page.css', array(), wp_get_theme()->get( 'Version' ), 'all' );
 }
@@ -166,7 +175,7 @@ function wp98_setup_admin( $hook ) {
 }
 
 // Handler for determining what content to load within the page windows on AJAX requests
-function ajax_action_callback_load_page() {
+function ajax_action_callback_wp98_load_page() {
   if ( isset( $_POST['id'] ) ) {
     $id = absint( $_POST['id'] );
     $type = get_post_type( $id );
@@ -180,4 +189,16 @@ function ajax_action_callback_load_page() {
   }
   else echo 'err';
   die();
+}
+
+// Add tag and category support to pages
+function tags_categories_support_all() {
+  register_taxonomy_for_object_type('post_tag', 'page');
+  register_taxonomy_for_object_type('category', 'page');  
+}
+
+// Ensure all tags and categories are included in queries
+function tags_categories_support_query($wp_query) {
+  if ($wp_query->get('tag')) $wp_query->set('post_type', 'any');
+  if ($wp_query->get('category_name')) $wp_query->set('post_type', 'any');
 }

@@ -1,4 +1,9 @@
-<?php 
+<?php
+  /**
+   * The template for displaying 404 errors when navigating inside a window in WP 98
+   *
+   */
+
   require_once("../../../../wp-load.php");
   $status = absint( $_GET[ "status" ] );
   $message = sanitize_text_field( $_GET[ "message" ] );

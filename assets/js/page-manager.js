@@ -136,7 +136,7 @@ const pm = (function($){
     $.ajax({
       url: '/wp-admin/admin-ajax.php',
       type: 'POST',
-      data:`action=load_page&id=${pageId}`,
+      data:`action=wp98_load_page&id=${pageId}`,
       success: content => {
         if (content == '404') {
           loadPageError(404, 'The requested page was not found.');

@@ -37,7 +37,7 @@ const sb = (function($) {
   // Menu item event listener and handling
   $.each(menuItems, function(key, item) {
     $(item).click( function() {
-      const id = item.getAttribute('data-id');
+      const id = $(item).data('id');
 
       // Return if this menu item has already been clicked and created a new element on the page
       if ($(`#wp98-page-${id}`).length !== 0) {
