@@ -328,9 +328,10 @@
               <?php if ( $entry->img === null || $entry->img === '' ) wp98_build_menu_no_image_container();
               else wp98_build_menu_image_container( $entry->img ); ?>
             </td>
-            <?php wp98_build_menu_page_dropdown( $row, $entry, $page_array );
-            wp98_build_menu_page_header_dropdown( $row, $page_headers );
-            wp98_build_menu_page_footer_dropdown( $row, $page_footers );
+            <?php wp98_build_menu_page_dropdown( $entry, $page_array );
+            wp98_build_menu_page_header_dropdown( $page_headers );
+            wp98_build_menu_page_footer_dropdown( $page_footers );
+            wp98_build_menu_checkbox_html( $entry_count, $entry->style );
             wp98_build_menu_delete_icon( true ); ?>
           </tr>
         <?php }
@@ -345,10 +346,11 @@
       <td class="menu-icon-col">
         <?php wp98_build_menu_no_image_container(); ?>
       </td>
-      <?php wp98_build_menu_page_dropdown( $entry_count, NULL, $page_array );
-      wp98_build_menu_page_header_dropdown( $entry_count, $page_headers );
-      wp98_build_menu_page_footer_dropdown( $entry_count, $page_footers );
-      wp98_build_menu_delete_icon(); ?>
+      <?php wp98_build_menu_page_dropdown( null, $page_array );
+      wp98_build_menu_page_header_dropdown( $page_headers );
+      wp98_build_menu_page_footer_dropdown( $page_footers );
+      wp98_build_menu_checkbox_html( $entry_count, null );
+      wp98_build_menu_delete_icon(); ?> 
     </tr>
   <?php }
 
@@ -359,6 +361,7 @@
       <th>Linked Page</th>
       <th>Header on<br>Linked Page</th>
       <th>Footer on<br>Linked Page</th>
+      <th>Custom<br>Styles</th>
       <th></th>
     </tr>
   <?php }
@@ -371,6 +374,7 @@
     <input type="hidden" name="menu-name-<?php echo $row; ?>" value="<?php echo is_null( $entry ) ? '' : $entry->lbl; ?>">
     <input type="hidden" name="menu-head-<?php echo $row; ?>" value="<?php echo is_null( $entry ) ? '' : $entry->head; ?>">
     <input type="hidden" name="menu-foot-<?php echo $row; ?>" value="<?php echo is_null( $entry ) ? '' : $entry->foot; ?>">
+    <input type="hidden" name="menu-style-<?php echo $row; ?>"<?php $entry->style === '1' ?  'checked' : ''; ?>>
   <?php }
 
   function wp98_build_menu_drag_icon() { ?>
@@ -394,7 +398,7 @@
     <button type="button" class="mediamanager-btn add-button button button-secondary">Icon</button>
   <?php }
 
-  function wp98_build_menu_page_dropdown( $row, $entry, $page_array ) { ?>
+  function wp98_build_menu_page_dropdown( $entry, $page_array ) { ?>
     <td class="menu-page-col">
       <select>
         <option value="none" <?php echo is_null( $entry ) ? 'selected="selected"' : '' ?>>--- None ---</option>
@@ -408,7 +412,7 @@
     </td>
   <?php }
 
-  function wp98_build_menu_page_header_dropdown( $row, $headers ) { ?>
+  function wp98_build_menu_page_header_dropdown( $headers ) { ?>
     <td class="menu-header-col">
       <select>
         <option value="none">--- No Header ---</option>
@@ -420,7 +424,7 @@
     </td>
   <?php }
 
-  function wp98_build_menu_page_footer_dropdown( $row, $footers ) { ?>
+  function wp98_build_menu_page_footer_dropdown( $footers ) { ?>
    <td class="menu-footer-col">
       <select>
         <option value="none">--- No Footer ---</option>
@@ -439,3 +443,9 @@
       <?php endif; ?>
     </td>
   <?php }
+
+function wp98_build_menu_checkbox_html( $row, $value ) { ?>
+  <td class="menu-style">
+    <input id="menu-style-<?php echo $row; ?>" type="checkbox"<?php echo $value === '1' ? ' checked' : ''; ?>>
+  </td>
+<?php }

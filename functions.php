@@ -102,6 +102,7 @@ function wp98_create_theme_database_table() {
       img varchar(2048),
       head varchar(2048),
       foot varchar(2048),
+      style int,
       PRIMARY KEY (ord)
     ) $charset_collate;";
   
