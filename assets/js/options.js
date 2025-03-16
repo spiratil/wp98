@@ -11,34 +11,46 @@ jQuery(document).ready(function($) {
     const actionInputEl = $(row.children[0]);
     const orderInputEl = $(row.children[1]);
     const pageIdInputEl = $(row.children[2]);
-    const iconInputEl = $(row.children[3]);
-    const pageNameInputEl = $(row.children[4]);
-    const headerInputEl = $(row.children[5]);
-    const footerInputEl = $(row.children[6]);
+    const imgInputEl = $(row.children[3]);
+    const nameInputEl = $(row.children[4]);
+    const headInputEl = $(row.children[5]);
+    const footInputEl = $(row.children[6]);
+    const styleInputEl = $(row.children[7]);
 
     // Icon elements
-    const dragEl = $(row.children[7]);
-    const noImgEl = $(row.children[8].children[0]);
-    const imgEl = $(row.children[8].children[1]);
-    const originalImgUrl = iconInputEl.val() !== '' ?
-      iconInputEl.val() :
+    const dragEl = $(row.children[8]);
+    const menuCon = $(row.children[9]);
+    const noImgEl = $(menuCon[0].children[0]);
+    const imgEl = $(menuCon[0].children[1]);
+    const originalImgUrl = imgInputEl.val() !== '' ?
+      imgInputEl.val() :
       '';
     
     // Page drop down elements
-    const pageSelEl = $(row.children[9].children[0]);
-    const headerSelEl = $(row.children[10].children[0]);
-    const footerSelEl = $(row.children[11].children[0]);
+    const pageSelEl = $(row.children[10].children[0]);
+    const headSelEl = $(row.children[11].children[0]);
+    const footSelEl = $(row.children[12].children[0]);
     const originalPageId = pageSelEl.val();
+    const originalHeader = headSelEl.val();
+    const originalFooter = footSelEl.val();
     const originalRow = Array.from(row.parentNode.children).indexOf(row);
-  
+
+    // Checkboxes
+    const styleCheckEl = $(row.children[13].children[0]);
+    const originalStyleState = styleCheckEl.prop('checked');
+    // Buttons
+    const delBtn = $(row.children[14].children[0]);
     let btnsCon, changeBtn, removeBtn, chooseBtn;
 
     // Page selection dropdown event listener
     pageSelEl.change(updateInputValueState);
+    headSelEl.change(updateInputValueState);
+    footSelEl.change(updateInputValueState);
+    styleCheckEl.change(updateInputValueState);
 
     // Add event listeners if the row already contains a selected icon
     if (imgEl[0].nextElementSibling.type === undefined) {
-      btnsCon = $(row.children[8].children[2]);
+      btnsCon = $(menuCon[0].children[2]);
       
       changeBtn = $(btnsCon[0].children[0]);
       removeBtn = $(btnsCon[0].children[1]);
@@ -49,7 +61,9 @@ jQuery(document).ready(function($) {
     }
     // Add event listeners if the row doesn't contain a selected icon
     else {
-      chooseBtn = $(row.children[8].children[2]);
+      chooseBtn = $(menuCon[0].children[2]);
+
+      console.log(chooseBtn)
 
       addChooseIconEventListener(chooseBtn);
     }
@@ -61,7 +75,7 @@ jQuery(document).ready(function($) {
         mediamanager.open();
         mediamanager.options.insertType = 'html';
         mediamanager.options.insert = chosenImg => {
-          iconInputEl.val(chosenImg.src);
+          imgInputEl.val(chosenImg.src);
           imgEl.attr('src', chosenImg.src);
           imgEl.css('display', 'inline-block');
           noImgEl.css('display', 'none');
@@ -80,12 +94,12 @@ jQuery(document).ready(function($) {
         imgEl.css('display', 'none');
 
         // Remove the old buttons and add a "choose" button
-        iconInputEl.val('');
+        imgInputEl.val('');
         btnsCon.remove();
         chooseBtn = $('<button/>', {
           type: 'button',
           class: 'mediamanager-btn add-button button button-secondary'
-        }).html('Choose<br>Icon').appendTo(row.children[8]);
+        }).html('Choose<br>Icon').appendTo(menuCon[0]);
         
         addChooseIconEventListener(chooseBtn);
 
@@ -100,7 +114,7 @@ jQuery(document).ready(function($) {
         mediamanager.open();
         mediamanager.options.insertType = 'html';
         mediamanager.options.insert = chosenImg => {
-          iconInputEl.attr('value', chosenImg.src);
+          imgInputEl.attr('value', chosenImg.src);
           imgEl.attr('src', chosenImg.src);
           imgEl.css('display', 'inline-block');
           noImgEl.css('display', 'none');
@@ -109,7 +123,7 @@ jQuery(document).ready(function($) {
           chooseBtn.remove();
 
           btnsCon = $('<div/>', { class: 'menu-btn-flex-container'})
-            .appendTo(row.children[8]);
+            .appendTo(menuCon[0]);
           
           changeBtn = $('<button/>', {
             type: 'button',
@@ -133,23 +147,35 @@ jQuery(document).ready(function($) {
       if (pageSelEl.val() === 'none') {
         actionInputEl.val('delete');
         pageIdInputEl.val(originalPageId);
-        pageNameInputEl.val('');
-        headerInputEl.val('');
-        footerInputEl.val('');
+        nameInputEl.val('');
+        headInputEl.val('');
+        headSelEl.prop('selectedIndex', 0);
+        footInputEl.val('');
+        footSelEl.prop('selectedIndex', 0);
+        styleInputEl.val(0);
+        styleCheckEl.prop('checked', false); 
       }
-      else if (pageSelEl.val() === originalPageId && iconInputEl.val() === originalImgUrl) {
+      else if (
+        pageSelEl.val() === originalPageId
+        && imgInputEl.val() === originalImgUrl
+        && headSelEl.val() === originalHeader
+        && footSelEl.val() === originalFooter
+        && styleCheckEl.prop('checked') === originalStyleState
+      ) {
         actionInputEl.val('no-change');
         pageIdInputEl.val(originalPageId);
-        pageNameInputEl.val(pageSelEl[0][pageSelEl[0].selectedIndex].text);
-        headerInputEl.val(headerSelEl.val());
-        footerInputEl.val(footerSelEl.val());
+        nameInputEl.val(pageSelEl[0][pageSelEl[0].selectedIndex].text);
+        headInputEl.val(headSelEl.val());
+        footInputEl.val(footSelEl.val());
+        styleInputEl.val(styleCheckEl.prop('checked'));
       }
       else {
         actionInputEl.val('update');
         pageIdInputEl.val(pageSelEl.val());
-        pageNameInputEl.val(pageSelEl[0][pageSelEl[0].selectedIndex].text);
-        headerInputEl.val(headerSelEl.val());
-        footerInputEl.val(footerSelEl.val());
+        nameInputEl.val(pageSelEl[0][pageSelEl[0].selectedIndex].text);
+        headInputEl.val(headSelEl.val());
+        footInputEl.val(footSelEl.val());
+        styleInputEl.val(styleCheckEl.prop('checked'));
       }
 
       // Row number in the table

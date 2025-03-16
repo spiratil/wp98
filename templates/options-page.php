@@ -2,7 +2,7 @@
   // Database tables
   global $wpdb, $options_table, $menu_table;
   // Option categories in database tables
-  global $general_opts, $taskbar_opts, $styling_opts, $danger_opts, $nav_menu;
+  global $general_opts, $taskbar_opts, $styling_opts, $nav_menu;
 
   // Option categories sorted into an array
   foreach ( $wpdb->get_results( "SELECT DISTINCT cat FROM $options_table") as $value )
@@ -12,7 +12,6 @@
   $general_opts = $wpdb->get_results( "SELECT * FROM $options_table WHERE cat='general'" );
   $taskbar_opts = $wpdb->get_results( "SELECT * FROM $options_table WHERE cat='taskbar'" );
   $styling_opts = $wpdb->get_results( "SELECT * FROM $options_table WHERE cat='styling'" );
-  $danger_opts = $wpdb->get_results( "SELECT * FROM $options_table WHERE cat='danger'" );
   $nav_menu = $wpdb->get_results( "SELECT * FROM $menu_table" );
 
   // Check if the form on the page has been submitted
@@ -58,8 +57,8 @@
     // Save the custome CSS settings to file
     saveCssSettings($general_opts);
 
-    $menu_count = 0; $new_menu = [];
     // Save Menu settings
+    $menu_count = 0; $new_menu = [];
     for ( $i = 0; $i < count( array_keys( $_POST ) ); $i++ ) {
       if ( array_key_exists( 'menu-action-' . $i, $_POST ) && $_POST['menu-action-' . $i] != 'delete' ) {
         $new_menu[$menu_count] = new stdClass();
@@ -69,6 +68,7 @@
         $new_menu[$menu_count]->lbl = sanitize_text_field( $_POST['menu-name-' . $menu_count] );
         $new_menu[$menu_count]->head = sanitize_file_name( $_POST['menu-head-' . $menu_count] );
         $new_menu[$menu_count]->foot = sanitize_file_name( $_POST['menu-foot-' . $menu_count] );
+        $new_menu[$menu_count]->style = absint( $_POST['menu-style-' . $menu_count] );
         $menu_count++;
       }  
     }
@@ -145,12 +145,7 @@
         <tr>
           <td colspan="2"><h2>Custom Styling</h2></td>
         </tr>
-        <?php  wp98_build_styling_options_html( $styling_opts );
-        // Create the Danger Zone settings section ?>
-        <tr>
-          <td colspan="2"><h2>Danger Zone</h2></td>
-        </tr>
-        <?php  wp98_build_danger_options_html( $danger_opts ); ?>
+        <?php  wp98_build_styling_options_html( $styling_opts ); ?>
         <tr><td><?php submit_button( 'Save Options' ); ?></td></tr>
       </tbody>
     </table>
@@ -228,11 +223,6 @@
       </td>
     </tr>
   <?php }
-
-  function wp98_build_danger_options_html( $data ) { ?>
-    <input type="hidden" name="uninstall" value="">
-    <?php wp98_build_checkbox_html( "warning", "danger", "Uninstall WP 98", "Completely removes WP 98 from your WordPress Database.", 0 );
-  }
 
   function wp98_build_checkbox_html( $name, $category, $label, $description, $value ) {
     ?>
@@ -329,8 +319,8 @@
               else wp98_build_menu_image_container( $entry->img ); ?>
             </td>
             <?php wp98_build_menu_page_dropdown( $entry, $page_array );
-            wp98_build_menu_page_header_dropdown( $page_headers );
-            wp98_build_menu_page_footer_dropdown( $page_footers );
+            wp98_build_menu_page_header_dropdown( $entry, $page_headers );
+            wp98_build_menu_page_footer_dropdown( $entry, $page_footers );
             wp98_build_menu_checkbox_html( $entry_count, $entry->style );
             wp98_build_menu_delete_icon( true ); ?>
           </tr>
@@ -374,7 +364,7 @@
     <input type="hidden" name="menu-name-<?php echo $row; ?>" value="<?php echo is_null( $entry ) ? '' : $entry->lbl; ?>">
     <input type="hidden" name="menu-head-<?php echo $row; ?>" value="<?php echo is_null( $entry ) ? '' : $entry->head; ?>">
     <input type="hidden" name="menu-foot-<?php echo $row; ?>" value="<?php echo is_null( $entry ) ? '' : $entry->foot; ?>">
-    <input type="hidden" name="menu-style-<?php echo $row; ?>"<?php $entry->style === '1' ?  'checked' : ''; ?>>
+    <input type="hidden" name="menu-style-<?php echo $row; ?>" value="<?php echo is_null( $entry ) ? '' : $entry->style; ?>">
   <?php }
 
   function wp98_build_menu_drag_icon() { ?>
@@ -395,7 +385,7 @@
   function wp98_build_menu_no_image_container( ) { ?>
     <div class="menu-no-icon">No<br>Icon</div>
     <img src="" style="display: none;">
-    <button type="button" class="mediamanager-btn add-button button button-secondary">Icon</button>
+    <button type="button" class="mediamanager-btn add-button button button-secondary">Choose<br>Icon</button>
   <?php }
 
   function wp98_build_menu_page_dropdown( $entry, $page_array ) { ?>
@@ -446,6 +436,6 @@
 
 function wp98_build_menu_checkbox_html( $row, $value ) { ?>
   <td class="menu-style">
-    <input id="menu-style-<?php echo $row; ?>" type="checkbox"<?php echo $value === '1' ? ' checked' : ''; ?>>
+    <input id="menu-style-<?php echo $row; ?>" type="checkbox"<?php echo is_null( $value ) ? '' : 'checked' ?>>
   </td>
 <?php }
